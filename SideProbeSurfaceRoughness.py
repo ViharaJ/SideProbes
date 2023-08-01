@@ -48,17 +48,19 @@ else:
             # plt.gca().invert_yaxis()
             
             
+            
             # Extract contour
             img = cv2.imread(sourcePath + '/' + path, cv2.IMREAD_GRAYSCALE)
             cont, hier = cv2.findContours(img, cv2.RETR_EXTERNAL , cv2.CHAIN_APPROX_NONE)
+            ratio = img.shape[0]/img.shape[1]
                        
             if (cont):
                 #Get main contour of interest, ignore pores
                 k = longestContour(cont)            
                 
                 # sig is sigma of Gauss, size is kernel's full length
-                sig = len(k)*0.02
-                size = int(len(k)*0.02)
+                sig = 20
+                size = int(len(k)*0.15)
                 distanceE = []   
                 saveIndex = []
                             
@@ -68,6 +70,7 @@ else:
                 yscipy = []
                 
                 
+                
                 if(len(x) > size):
                     if(fb.euclidDist(x[0], y[0], x[-1], y[-1]) <= 150):
                         xscipy = scipy.ndimage.gaussian_filter(x, sig, radius=size, mode="wrap")
@@ -75,6 +78,9 @@ else:
                     else:
                         xscipy = scipy.ndimage.gaussian_filter(x, sig, radius=size, mode="nearest")
                         yscipy = scipy.ndimage.gaussian_filter(y, sig, radius=size, mode="nearest")
+                        
+                # plt.plot(x,y,'b.-',label='Exact contour')
+                # plt.plot(xscipy, yscipy, 'r.-', label='Baseline')
                 
                 rCont = np.squeeze(k*scale, axis=1)                                 
                 polyGon = shapely.geometry.LineString(rCont)
@@ -103,7 +109,13 @@ else:
                         saveIndex.append(j)
                        
                 
-                
+            #get x and y limits
+            # x_left, x_right = plt.gca().get_xlim()
+            # y_low, y_high = plt.gca().get_ylim()
+            # plt.gca().set_aspect(abs((x_right-x_left)/(y_low-y_high))*ratio)
+            # plt.legend()
+            # plt.title(path)
+            # plt.show()
             shiftedDistance.append(np.average(abs(np.array(distanceE)-np.average(distanceE))))
     
     print("Surface Roughness ", path, ': ', np.average(shiftedDistance))
