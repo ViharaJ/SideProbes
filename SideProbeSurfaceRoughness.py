@@ -33,32 +33,34 @@ acceptedFileTypes = ["jpg", "png", "bmp", "tif"]
 dirPictures = os.listdir(sourcePath)
 imageID = []
 scale = 12.5
-
+shiftedDistance = []
 
 if(len(dirPictures)  <= 0):
     print('The specified folder is empty!')
     sys.exit()
 else:
-    distanceE = []   
-    saveIndex = []
+    
     for path in dirPictures:
         if( '.' in path and path.split('.')[-1].lower() in acceptedFileTypes):
             print(path)
             #Reset plots to default figure size
-            plt.rcParams["figure.figsize"] = plt.rcParamsDefault["figure.figsize"]
+            # plt.rcParams["figure.figsize"] = plt.rcParamsDefault["figure.figsize"]
+            # plt.gca().invert_yaxis()
+            
             
             # Extract contour
             img = cv2.imread(sourcePath + '/' + path, cv2.IMREAD_GRAYSCALE)
             cont, hier = cv2.findContours(img, cv2.RETR_EXTERNAL , cv2.CHAIN_APPROX_NONE)
-            
+                       
             if (cont):
                 #Get main contour of interest, ignore pores
                 k = longestContour(cont)            
                 
                 # sig is sigma of Gauss, size is kernel's full length
-                sig = 15
-                size = 15
-        
+                sig = len(k)*0.02
+                size = int(len(k)*0.02)
+                distanceE = []   
+                saveIndex = []
                             
                 x = np.array(k[:,0,0])*scale
                 y = np.array(k[:,0,1])*scale
@@ -76,15 +78,14 @@ else:
                 
                 rCont = np.squeeze(k*scale, axis=1)                                 
                 polyGon = shapely.geometry.LineString(rCont)
-             
-             
+                
+                
                 dx = np.diff(xscipy)
                 dy = np.diff(yscipy)
                 
                 
                 for j in range(len(dx)):
                     xs, ys = fb.createNormalLine(xscipy[j], yscipy[j], dx[j], dy[j])
-                    
                     
                     stack = np.stack((xs,ys), axis=-1)
                     line = shapely.geometry.LineString(stack)
@@ -103,5 +104,6 @@ else:
                        
                 
                 
-    shiftedDistance = np.array(distanceE)-np.average(distanceE)
-    print("Surface Roughness ", path, ': ', np.average(abs(shiftedDistance)))
+            shiftedDistance.append(np.average(abs(np.array(distanceE)-np.average(distanceE))))
+    
+    print("Surface Roughness ", path, ': ', np.average(shiftedDistance))
