@@ -53,27 +53,9 @@ else:
             # Extract contour
             img = cv2.imread(sourcePath + '/' + path, cv2.IMREAD_GRAYSCALE)
             height, width = img.shape
+            cont, hier = cv2.findContours(img, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
             
             
-            x = []
-            y = []
             
-            count = 0
-            for i in range(width):
-                col = np.transpose(img[:,i])
-                indices = np.where(col==255)[0]
-                 
-                
-                for j in range(len(indices)):
-                    x.append(count)
-                    y.append(indices[j])
-                    count = count+1
-                
-            
-            
-            print(x,y)
-            
-            plt.plot(x,y)
-            plt.show()
                 
                 
