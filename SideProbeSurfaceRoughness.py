@@ -28,7 +28,7 @@ def longestContour(contours):
     
     return contours[maxIndx]
 
-<<<<<<< HEAD
+
 def checkFeature(image, row, col):
     image = np.array(image)
     
@@ -57,7 +57,6 @@ def checkFeature(image, row, col):
         loops = loops - 1
         
     return False
-=======
 
 def keepImage(image, contour, filename):
     """
@@ -100,7 +99,7 @@ def makeComparisonPlot(image, x,y, bx,by):
     plt.title(path)
     plt.show()
 
->>>>>>> doubleBack
+
 
 def nearestNeighbour(x1, y1, allX, allY):
     distance = fb.euclidDist(x1, y1, allX, allY)   
@@ -127,15 +126,7 @@ if(len(dirPictures)  <= 0):
 else:    
     for path in dirPictures:
         if( '.' in path and path.split('.')[-1].lower() in acceptedFileTypes):
-<<<<<<< HEAD
             doubleBack = 0
-            #Reset plots to default figure size
-            plt.rcParams["figure.figsize"] = plt.rcParamsDefault["figure.figsize"]
-            plt.gca().invert_yaxis()
-            
-            
-=======
->>>>>>> doubleBack
             # Extract contour
             img = cv2.imread(sourcePath + '/' + path, cv2.IMREAD_GRAYSCALE)
             cont, hier = cv2.findContours(img, cv2.RETR_LIST , cv2.CHAIN_APPROX_NONE)
@@ -143,7 +134,7 @@ else:
             if (cont):
                 #Get main contour of interest, ignore pores
                 k = longestContour(cont)
-<<<<<<< HEAD
+                
                 #REMOVE properly
                 _, idx = np.unique(k, axis=0,  return_index=True)
                 k = k[np.sort(idx, axis=-1)]
@@ -165,48 +156,20 @@ else:
                     
                     
                 
-                x = []
-                y = []
+                # x = []
+                # y = []
                 
-                for a,b in np.array(newOrder):
-                    x.append(a)
-                    y.append(b)
+                # for a,b in np.array(newOrder):
+                #     x.append(a)
+                #     y.append(b)
                     
-                plt.title(path)
-                plt.plot(x,y,'r.-')
-                plt.show()
-                
-                
-              
-                        
-                
-  
-=======
-                                         
-                x = np.array(k[:,0,0])*scale
-                y = np.array(k[:,0,1])*scale
-                
-                pairs = []
-                
-                for i in range(len(x)):
-                    if(doubleBack == 0 and [x[i], y[i]] in pairs):
-                        pairs = []
-                        pairs.append([x[i], y[i]])
-                        doubleBack = doubleBack + 1
-                    elif (doubleBack == 1 and [x[i], y[i]] in pairs):
-                        pairs = []
-                        pairs.append([x[i], y[i]])
-                        doubleBack = doubleBack + 1
-                
-                    pairs.append([x[i], y[i]])
-                    
-                
-                # pairs = np.array(pairs)
                 # plt.title(path)
-                # plt.plot(pairs[:,0], pairs[:,1],'r.-')
+                # plt.plot(x,y,'r.-')
                 # plt.show()
                 
-                if(keepImage(img, pairs, path) == False):
+                
+                
+                if(keepImage(img, newOrder, path) == False):
                     removedImages.append(path)
 
->>>>>>> doubleBack
+
