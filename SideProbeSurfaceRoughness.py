@@ -115,7 +115,7 @@ else:
                     pairs.append([x[i], y[i]])
                     
                 
-                # pairs = np.array(pairs)
+                pairs = np.array(pairs)
                 # plt.title(path)
                 # plt.plot(pairs[:,0], pairs[:,1],'r.-')
                 # plt.show()
