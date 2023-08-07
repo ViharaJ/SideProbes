@@ -15,7 +15,7 @@ import sys
 import math
 import time
 from scipy import spatial
-
+from sklearn.neighbors import NearestNeighbors
 
 def longestContour(contours):
     maxIndx = 0
@@ -96,78 +96,39 @@ else:
                 #Get main contour of interest, ignore pores
                 k = longestContour(cont)
                 #REMOVE properly
-                # _, idx = np.unique(k, axis=0,  return_index=True)
-                # k = k[np.sort(idx, axis=-1)]
+                _, idx = np.unique(k, axis=0,  return_index=True)
+                k = k[np.sort(idx, axis=-1)]
+                k = np.squeeze(k, axis=1)
                 
-                x = k[:,0,0]                
-                y = k[:,0,1]
+                minIndx = np.where(k[:,0] == k[:,0].min())[0][0]
+                newOrder = [k[minIndx]]
                 
-                dataset = []
-                for j in range(len(x)):
-                    dataset.append([x[j],y[j]])
-               
-                dataset.sort(key=lambda x:x[0])
-
-
-                #spatially organising the points on a tree for quick nearest neighbors calc
-                kdtree = spatial.KDTree(dataset)
-                
-                #calculates the nearest neighbors of each point
-                _ , neighs = kdtree.query(dataset, k=5)
-                
-               
-                newSet = []
-                newSet.append(dataset[0])
-                dataset = np.delete(dataset, 0, axis=0)
+                k = np.delete(k, minIndx, axis=0)
                 
                 
-                while(len(dataset) > 0):
-                    coord = newSet[-1]
-                    #calculates the nearest neighbors of each point
-                    _ , neighs = kdtree.query([coord], k=5)
-                    _, idx = np.unique(neighs, axis=0,  return_index=True)
-                    neighs = neighs[np.sort(idx, axis=-1)]
-        
-                    dataset = np.delete(dataset, neighs[0], axis=0)
-                    newSet.append(dataset[neighs[0]])
+                while(len(k) > 1):
+                    nbrs = NearestNeighbors(n_neighbors=2, algorithm='ball_tree').fit(k)
+                    distance, indices = nbrs.kneighbors([newOrder[-1]])
+                    
+                    indices = indices[:,0]
+                    newOrder.append(k[indices[0]])
+                    k = np.delete(k, indices[0], axis=0)
+                    
+                    
+                
+                x = []
+                y = []
+                
+                for a,b in np.array(newOrder):
+                    x.append(a)
+                    y.append(b)
+                    
+                plt.title(path)
+                plt.plot(x,y,'r.-')
+                plt.show()
+                
+                
+              
                         
                 
-                
-# Manual nearest neighbour
-# if (cont):
-#     #Get main contour of interest, ignore pores
-#     k = longestContour(cont)
-#     #REMOVE properly
-#     # _, idx = np.unique(k, axis=0,  return_index=True)
-#     # k = k[np.sort(idx, axis=-1)]
-    
-#     x = k[:,0,0]                
-#     y = k[:,0,1]
-    
-#     dataset = []
-#     for j in range(len(x)):
-#         dataset.append([x[j],y[j]])
-    
-#     dataset.sort(key=lambda x:x[0])
-
-    
-#     newSet = []
-#     newSet.append(dataset[0])
-#     dataset = np.delete(dataset, 0, axis=0)
-    
-    
-#     while(len(dataset) > 0):
-#         coord = newSet[-1]
-#         allX = dataset[:,0]
-#         allY = dataset[:,1]
-#         swapCoord = nearestNeighbour(coord[0], coord[1], allX, allY)
-        
-#         newSet.append(dataset[swapCoord[0]])
-#         dataset = np.delete(dataset, swapCoord, axis=0)
-        
-        
-    
-#     newSet = np.array(newSet)
-#     print(newSet)
-#     plt.plot(newSet[:,0], newSet[:,1], 'r.-')
-#     plt.show()
+  
