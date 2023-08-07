@@ -34,7 +34,7 @@ def checkFeature(img, row, col):
 
 start = time.time()
 #"C:/Users/v.jayaweera/Pictures/FindingEdgesCutContour/OneFileContours"
-sourcePath = "C:/Users/v.jayaweera/Documents/Side Probes/Roughness_Routine_Output/HantelTest"
+sourcePath = "C:/Users/v.jayaweera/Documents/Side Probes/Roughness_Routine_Output/Hantel01_Outline"
 csvPath = '/Users/v.jayaweera/Documents/SRAvg-ContourDiv-NoInvert.csv'
 acceptedFileTypes = ["jpg", "png", "bmp", "tif"]
 dirPictures = os.listdir(sourcePath)
@@ -50,7 +50,6 @@ else:
     
     for path in dirPictures:
         if( '.' in path and path.split('.')[-1].lower() in acceptedFileTypes):
-            
             #Reset plots to default figure size
             plt.rcParams["figure.figsize"] = plt.rcParamsDefault["figure.figsize"]
             plt.gca().invert_yaxis()
@@ -78,22 +77,6 @@ else:
                 x = np.array(k[:,0,0])*scale
                 y = np.array(k[:,0,1])*scale
                 
-                # ppx = []
-                # ppy = []
-                
-                # for i in range(len(x)):
-                #     plt.plot(ppx, ppy, 'b.-')
-                #     plt.plot(x[i], y[i], 'r.')
-                #     plt.show()
-                #     ppx.append(x[i])
-                #     ppy.append(y[i])
-            
-                # plt.plot(x,y,'r.-')
-                # plt.show()
-                # sys.exit()
-                
-                
-                 
                 pairs = []
                 
                 for i in range(len(x)):
@@ -110,6 +93,7 @@ else:
                     
                 
                 pairs = np.array(pairs)
+                plt.title(path)
                 plt.plot(pairs[:,0], pairs[:,1],'r.-')
                 plt.show()
                 
