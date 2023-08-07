@@ -26,13 +26,21 @@ def longestContour(contours):
     
     return contours[maxIndx]
 
-def keepImage(img, filename):
+def keepImage(image, contour, filename):
     """
     img: img opencv array
     """
-    plt.title(filename)
-    plt.imshow(img)
+    ratio = image.shape[0]/image.shape[1]
+    fig, axs = plt.subplots(2, 1)
+    fig.suptitle(filename)
+    axs[0].imshow(image)
+    axs[1].invert_yaxis()
+    axs[1].plot(np.array(contour[:,0,0]), np.array(contour[:,0,1]), 'b.-')
+    x_left, x_right = plt.gca().get_xlim()
+    y_low, y_high = plt.gca().get_ylim()
+    fig.gca().set_aspect(abs((x_right-x_left)/(y_low-y_high))*ratio)
     plt.show()
+    
     inp = input("Keep (1 or SPACE) or Remove(2)?")
    
     if(inp == '' or inp == '1'):
@@ -82,13 +90,12 @@ else:
                       
             
             if (cont):
+                #Get main contour of interest, ignore pores
+                k = longestContour(cont)
                 if(len(np.array(cont,dtype=object)) > 2):
-                    if(keepImage(img, path) == False):
+                    if(keepImage(img, k, path) == False):
                         removedImages.append(path)
-                    else:
-                        #Get main contour of interest, ignore pores
-                        k = longestContour(cont)
-                                                
+                    else:                    
                         # sig is sigma of Gauss, size is kernel's full length
                         sig = 60
                         size = 20
