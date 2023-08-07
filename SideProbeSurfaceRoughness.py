@@ -14,6 +14,8 @@ import os
 import sys
 import math
 import time
+import pandas as pd
+
 
 def longestContour(contours):
     maxIndx = 0
@@ -73,7 +75,7 @@ def makeComparisonPlot(image, x,y, bx,by):
 start = time.time()
 #"C:/Users/v.jayaweera/Pictures/FindingEdgesCutContour/OneFileContours"
 sourcePath = "C:/Users/v.jayaweera/Documents/Side Probes/Roughness_Routine_Output/Hantel01_Outline"
-csvPath = '/Users/v.jayaweera/Documents/SRAvg-ContourDiv-NoInvert.csv'
+csvPath = '/Users/v.jayaweera/Documents/Side Probes/Removed Images/Hantel01_Removed_Images'
 acceptedFileTypes = ["jpg", "png", "bmp", "tif"]
 dirPictures = os.listdir(sourcePath)
 imageID = []
@@ -105,21 +107,21 @@ else:
                 for i in range(len(x)):
                     if(doubleBack == 0 and [x[i], y[i]] in pairs):
                         pairs = []
-                        pairs.append([x[i], y[i]])
                         doubleBack = doubleBack + 1
                     elif (doubleBack == 1 and [x[i], y[i]] in pairs):
                         pairs = []
-                        pairs.append([x[i], y[i]])
                         doubleBack = doubleBack + 1
-                
+                    elif doubleBack == 2 and [x[i], y[i]] in pairs:
+                        break
+
                     pairs.append([x[i], y[i]])
                     
                 
                 pairs = np.array(pairs)
-                # plt.title(path)
-                # plt.plot(pairs[:,0], pairs[:,1],'r.-')
-                # plt.show()
-                
-                if(keepImage(img, pairs, path) == False):
+               
+                if(len(pairs) > 0 and keepImage(img, pairs, path) == False):
                     removedImages.append(path)
 
+            
+df = pd.DataFrame(data=removedImages, columns=['Images_Removed'])
+df.to_csv(csvPath)
