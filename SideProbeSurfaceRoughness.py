@@ -135,9 +135,6 @@ else:
                 #Get main contour of interest, ignore pores
                 k = longestContour(cont)
                 
-                #REMOVE properly
-                _, idx = np.unique(k, axis=0,  return_index=True)
-                k = k[np.sort(idx, axis=-1)]
                 k = np.squeeze(k, axis=1)
                 
                 minIndx = np.where(k[:,0] == k[:,0].min())[0][0]
@@ -168,7 +165,8 @@ else:
                 # plt.show()
                 
                 
-                
+                _, idx = np.unique(k, axis=0,  return_index=True)
+                k = k[np.sort(idx, axis=-1)]
                 if(keepImage(img, newOrder, path) == False):
                     removedImages.append(path)
 
