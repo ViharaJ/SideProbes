@@ -31,12 +31,13 @@ def keepImage(image, contour, filename):
     """
     img: img opencv array
     """
+    contour = np.array(contour)
     ratio = image.shape[0]/image.shape[1]
     fig, axs = plt.subplots(2, 1)
     fig.suptitle(filename)
     axs[0].imshow(image)
     axs[1].invert_yaxis()
-    axs[1].plot(np.array(contour[:,0,0]), np.array(contour[:,0,1]), 'b.-')
+    axs[1].plot(contour[:,0], contour[:,1], 'b.-')
     x_left, x_right = plt.gca().get_xlim()
     y_low, y_high = plt.gca().get_ylim()
     fig.gca().set_aspect(abs((x_right-x_left)/(y_low-y_high))*ratio)
@@ -78,11 +79,9 @@ dirPictures = os.listdir(sourcePath)
 imageID = []
 scale = 6.249
 averageSR = []
-<<<<<<< HEAD
 doubleBack = 0
-=======
 removedImages = []
->>>>>>> master
+
 
 if(len(dirPictures)  <= 0):
     print('The specified folder is empty!')
@@ -90,26 +89,14 @@ if(len(dirPictures)  <= 0):
 else:    
     for path in dirPictures:
         if( '.' in path and path.split('.')[-1].lower() in acceptedFileTypes):
-
             # Extract contour
             img = cv2.imread(sourcePath + '/' + path, cv2.IMREAD_GRAYSCALE)
             cont, hier = cv2.findContours(img, cv2.RETR_LIST , cv2.CHAIN_APPROX_NONE)
 
-            
             if (cont):
                 #Get main contour of interest, ignore pores
                 k = longestContour(cont)
-                #REMOVE properly
-                # _, idx = np.unique(k, axis=0,  return_index=True)
-                # print(idx.shape)
-                # k = k[np.sort(idx)]
-                
-                # # sig is sigma of Gauss, size is kernel's full length
-                # sig = 60
-                # size = 20
-                # distanceE = []   
-                # saveIndex = []
-                            
+                                         
                 x = np.array(k[:,0,0])*scale
                 y = np.array(k[:,0,1])*scale
                 
@@ -128,9 +115,11 @@ else:
                     pairs.append([x[i], y[i]])
                     
                 
-                pairs = np.array(pairs)
-                plt.title(path)
-                plt.plot(pairs[:,0], pairs[:,1],'r.-')
-                plt.show()
+                # pairs = np.array(pairs)
+                # plt.title(path)
+                # plt.plot(pairs[:,0], pairs[:,1],'r.-')
+                # plt.show()
                 
+                if(keepImage(img, pairs, path) == False):
+                    removedImages.append(path)
 
