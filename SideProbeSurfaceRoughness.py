@@ -108,9 +108,7 @@ else:
                 y = np.array(k[:,0,1])*scale
                 
 
-                pairs = []
-
-                
+                pairs = []                
                 for i in range(len(x)):
                     if(doubleBack == 0 and [x[i], y[i]] in pairs):
                         pairs = []
@@ -155,10 +153,6 @@ else:
                         # plt.plot(mx,my, 'mo')
                         # plt.show()
                         
-                # plt.gca().legend(('Exact contour','Baseline'))
-                # plt.title(path)
-                # plt.show()
-
                 
                 pairs = np.array(pairs)
                 # plt.title(path)
