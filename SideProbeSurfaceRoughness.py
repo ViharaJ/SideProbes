@@ -108,7 +108,6 @@ else:
                                xscipy = scipy.signal.convolve(x, gauss_kernel, mode="valid")
                                yscipy = scipy.signal.convolve(y, gauss_kernel, mode="valid")
                             else:
-                                print("valid")
                                 xscipy = scipy.signal.convolve(x, gauss_kernel, mode="valid")
                                 yscipy = scipy.signal.convolve(y, gauss_kernel, mode="valid")
                                 
