@@ -72,6 +72,7 @@ def makeComparisonPlot(image, x,y, bx,by):
 
 start = time.time()
 #"C:/Users/v.jayaweera/Pictures/FindingEdgesCutContour/OneFileContours"
+
 sourcePath = "C:/Users/v.jayaweera/Documents/Side Probes/Roughness_Routine_Output/Hantel01_Outline"
 csvPath = '/Users/v.jayaweera/Documents/SRAvg-ContourDiv-NoInvert.csv'
 acceptedFileTypes = ["jpg", "png", "bmp", "tif"]
@@ -83,9 +84,11 @@ doubleBack = 0
 removedImages = []
 
 
+
 if(len(dirPictures)  <= 0):
     print('The specified folder is empty!')
     sys.exit()
+
 else:    
     for path in dirPictures:
         if( '.' in path and path.split('.')[-1].lower() in acceptedFileTypes):
@@ -94,13 +97,19 @@ else:
             cont, hier = cv2.findContours(img, cv2.RETR_LIST , cv2.CHAIN_APPROX_NONE)
 
             if (cont):
-                #Get main contour of interest, ignore pores
-                k = longestContour(cont)
-                                         
+                k = longestContour(cont)            
+                # sig is sigma of Gauss, size is kernel's full length
+                sig = 15
+                size = 15
+                distanceE = []     
+                saveIndex = []
+                
                 x = np.array(k[:,0,0])*scale
                 y = np.array(k[:,0,1])*scale
                 
+
                 pairs = []
+
                 
                 for i in range(len(x)):
                     if(doubleBack == 0 and [x[i], y[i]] in pairs):
@@ -111,9 +120,45 @@ else:
                         pairs = []
                         pairs.append([x[i], y[i]])
                         doubleBack = doubleBack + 1
-                
-                    pairs.append([x[i], y[i]])
+                 pairs.append([x[i], y[i]])
                     
+
+                rCont = np.squeeze(k*scale, axis=1)                                 
+                polyGon = shapely.geometry.LineString(rCont)
+             
+             
+                dx = np.diff(xscipy)
+                dy = np.diff(yscipy)
+                
+                
+                for j in range(len(dx)):
+                    xs, ys = fb.createNormalLine(xscipy[j], yscipy[j], dx[j], dy[j])
+                    plt.plot(xscipy[j], yscipy[j], 'r.-')
+                    
+                    stack = np.stack((xs,ys), axis=-1)
+                    line = shapely.geometry.LineString(stack)
+                    
+                    #TODO remove this from main CODE
+                    if(polyGon.intersects(line) and j > 0):
+                        #intersection geometry
+                        interPoints = polyGon.intersection(line)
+                        
+                        #intersection point
+                        mx, my = fb.proccessIntersectionPoint(interPoints, xscipy[j], yscipy[j])
+                        
+                        euD = fb.euclidDist(xscipy[j], yscipy[j], mx, my)
+                        distanceE.append(euD)
+                        saveIndex.append(j)
+                        # plt.clf()
+                        # plt.plot(xscipy,yscipy, 'r.')
+                        # plt.plot(xs,ys, 'g-')
+                        # plt.plot(mx,my, 'mo')
+                        # plt.show()
+                        
+                # plt.gca().legend(('Exact contour','Baseline'))
+                # plt.title(path)
+                # plt.show()
+
                 
                 pairs = np.array(pairs)
                 # plt.title(path)
