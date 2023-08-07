@@ -28,6 +28,7 @@ def longestContour(contours):
     
     return contours[maxIndx]
 
+<<<<<<< HEAD
 def checkFeature(image, row, col):
     image = np.array(image)
     
@@ -56,6 +57,50 @@ def checkFeature(image, row, col):
         loops = loops - 1
         
     return False
+=======
+
+def keepImage(image, contour, filename):
+    """
+    img: img opencv array
+    """
+    contour = np.array(contour)
+    ratio = image.shape[0]/image.shape[1]
+    fig, axs = plt.subplots(2, 1)
+    fig.suptitle(filename)
+    axs[0].imshow(image)
+    axs[1].invert_yaxis()
+    axs[1].plot(contour[:,0], contour[:,1], 'b.-')
+    x_left, x_right = plt.gca().get_xlim()
+    y_low, y_high = plt.gca().get_ylim()
+    fig.gca().set_aspect(abs((x_right-x_left)/(y_low-y_high))*ratio)
+    plt.show()
+    
+    inp = input("Keep (1 or SPACE) or Remove(2)?")
+   
+    if(inp == '' or inp == '1'):
+        return True
+    else:
+        return False
+    
+def makeComparisonPlot(image, x,y, bx,by):
+    #Reset plots to default figure size
+    plt.rcParams["figure.figsize"] = plt.rcParamsDefault["figure.figsize"]
+    plt.gca().invert_yaxis()
+    ratio = image.shape[0]/image.shape[1]
+    
+    #plot
+    plt.plot(x,y,'b.-',label='Exact contour')
+    plt.plot(bx, by, 'r.-', label='Baseline')
+    
+    #get x and y limits and resize axes
+    x_left, x_right = plt.gca().get_xlim()
+    y_low, y_high = plt.gca().get_ylim()
+    plt.gca().set_aspect(abs((x_right-x_left)/(y_low-y_high))*ratio)
+    plt.legend()
+    plt.title(path)
+    plt.show()
+
+>>>>>>> doubleBack
 
 def nearestNeighbour(x1, y1, allX, allY):
     distance = fb.euclidDist(x1, y1, allX, allY)   
@@ -73,28 +118,32 @@ imageID = []
 scale = 6.249
 averageSR = []
 doubleBack = 0
+removedImages = []
+
 
 if(len(dirPictures)  <= 0):
     print('The specified folder is empty!')
     sys.exit()
-else:
-    
+else:    
     for path in dirPictures:
         if( '.' in path and path.split('.')[-1].lower() in acceptedFileTypes):
+<<<<<<< HEAD
             doubleBack = 0
             #Reset plots to default figure size
             plt.rcParams["figure.figsize"] = plt.rcParamsDefault["figure.figsize"]
             plt.gca().invert_yaxis()
             
             
+=======
+>>>>>>> doubleBack
             # Extract contour
             img = cv2.imread(sourcePath + '/' + path, cv2.IMREAD_GRAYSCALE)
-            height, width = img.shape
-            cont, hier = cv2.findContours(img, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
-            
+            cont, hier = cv2.findContours(img, cv2.RETR_LIST , cv2.CHAIN_APPROX_NONE)
+
             if (cont):
                 #Get main contour of interest, ignore pores
                 k = longestContour(cont)
+<<<<<<< HEAD
                 #REMOVE properly
                 _, idx = np.unique(k, axis=0,  return_index=True)
                 k = k[np.sort(idx, axis=-1)]
@@ -132,3 +181,32 @@ else:
                         
                 
   
+=======
+                                         
+                x = np.array(k[:,0,0])*scale
+                y = np.array(k[:,0,1])*scale
+                
+                pairs = []
+                
+                for i in range(len(x)):
+                    if(doubleBack == 0 and [x[i], y[i]] in pairs):
+                        pairs = []
+                        pairs.append([x[i], y[i]])
+                        doubleBack = doubleBack + 1
+                    elif (doubleBack == 1 and [x[i], y[i]] in pairs):
+                        pairs = []
+                        pairs.append([x[i], y[i]])
+                        doubleBack = doubleBack + 1
+                
+                    pairs.append([x[i], y[i]])
+                    
+                
+                # pairs = np.array(pairs)
+                # plt.title(path)
+                # plt.plot(pairs[:,0], pairs[:,1],'r.-')
+                # plt.show()
+                
+                if(keepImage(img, pairs, path) == False):
+                    removedImages.append(path)
+
+>>>>>>> doubleBack
