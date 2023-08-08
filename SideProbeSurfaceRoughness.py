@@ -108,57 +108,69 @@ else:
                 y = np.array(k[:,0,1])*scale
                 
 
-                pairs = []                
-                for i in range(len(x)):
-                    if(doubleBack == 0 and [x[i], y[i]] in pairs):
-                        pairs = []
-                        pairs.append([x[i], y[i]])
-                        doubleBack = doubleBack + 1
-                    elif (doubleBack == 1 and [x[i], y[i]] in pairs):
-                        pairs = []
-                        pairs.append([x[i], y[i]])
-                        doubleBack = doubleBack + 1
-                 pairs.append([x[i], y[i]])
+                # pairs = []                
+                # for i in range(len(x)):
+                #     if(doubleBack == 0 and [x[i], y[i]] in pairs):
+                #         pairs = []
+                #         pairs.append([x[i], y[i]])
+                #         doubleBack = doubleBack + 1
+                #     elif (doubleBack == 1 and [x[i], y[i]] in pairs):
+                #         pairs = []
+                #         pairs.append([x[i], y[i]])
+                #         doubleBack = doubleBack + 1
+                #  pairs.append([x[i], y[i]])
                     
 
-                rCont = np.squeeze(k*scale, axis=1)                                 
-                polyGon = shapely.geometry.LineString(rCont)
+                # rCont = np.squeeze(k*scale, axis=1)                                 
+                # polyGon = shapely.geometry.LineString(rCont)
              
-             
+                sig = 15
+                size = 12
+                kernel = fb.gauss1D(size, sig)   
+                
+                xscipy = signal.convolve(x, kernel, mode='valid')
+                yscipy = signal.convolve(y, kernel, mode='valid')
+                
                 dx = np.diff(xscipy)
                 dy = np.diff(yscipy)
                 
+                plt.title(path)
+                plt.plot(x,y, 'b.-', label="Exact contour")
+                plt.plot(xscipy, yscipy, 'r.-', label="Baseline")
+                plt.legend()
+                plt.show()
                 
-                for j in range(len(dx)):
-                    xs, ys = fb.createNormalLine(xscipy[j], yscipy[j], dx[j], dy[j])
-                    plt.plot(xscipy[j], yscipy[j], 'r.-')
+                
+                # for j in range(len(dx)):
+                #     xs, ys = fb.createNormalLine(xscipy[j], yscipy[j], dx[j], dy[j])
+                #     plt.plot(xscipy[j], yscipy[j], 'r.-')
                     
-                    stack = np.stack((xs,ys), axis=-1)
-                    line = shapely.geometry.LineString(stack)
+                #     stack = np.stack((xs,ys), axis=-1)
+                #     line = shapely.geometry.LineString(stack)
                     
-                    #TODO remove this from main CODE
-                    if(polyGon.intersects(line) and j > 0):
-                        #intersection geometry
-                        interPoints = polyGon.intersection(line)
+                #     #TODO remove this from main CODE
+                #     if(polyGon.intersects(line) and j > 0):
+                #         #intersection geometry
+                #         interPoints = polyGon.intersection(line)
                         
-                        #intersection point
-                        mx, my = fb.proccessIntersectionPoint(interPoints, xscipy[j], yscipy[j])
+                #         #intersection point
+                #         mx, my = fb.proccessIntersectionPoint(interPoints, xscipy[j], yscipy[j])
                         
-                        euD = fb.euclidDist(xscipy[j], yscipy[j], mx, my)
-                        distanceE.append(euD)
-                        saveIndex.append(j)
-                        # plt.clf()
-                        # plt.plot(xscipy,yscipy, 'r.')
-                        # plt.plot(xs,ys, 'g-')
-                        # plt.plot(mx,my, 'mo')
-                        # plt.show()
+                #         euD = fb.euclidDist(xscipy[j], yscipy[j], mx, my)
+                #         distanceE.append(euD)
+                #         saveIndex.append(j)
+                #         # plt.clf()
+                #         # plt.plot(xscipy,yscipy, 'r.')
+                #         # plt.plot(xs,ys, 'g-')
+                #         # plt.plot(mx,my, 'mo')
+                #         # plt.show()
                         
                 
-                pairs = np.array(pairs)
+                # pairs = np.array(pairs)
                 # plt.title(path)
                 # plt.plot(pairs[:,0], pairs[:,1],'r.-')
                 # plt.show()
                 
-                if(keepImage(img, pairs, path) == False):
-                    removedImages.append(path)
+                # if(keepImage(img, pairs, path) == False):
+                #     removedImages.append(path)
 
