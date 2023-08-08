@@ -134,15 +134,15 @@ else:
                 #Get main contour of interest, ignore pores
                 k = longestContour(cont)
                 
+                #plot original contours
+                plt.plot(k[:,0,0],k[:,0,1],'r.-')
+                
                 #get unqiue points, maintain order
                 _, idx = np.unique(k, axis=0,  return_index=True)
                 k = k[np.sort(idx, axis=-1)]
                 
                 #turn contour to shape (n,2)
                 k = np.squeeze(k, axis=1)
-                
-                #plot original contours
-                plt.plot(k[:,0],k[:,1],'r.-')
                 
                 #find starting point of contour
                 minIndices = np.where(k[:,1] == k[:,1].min())[0]
