@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-kNN on unique points
+kNN2: Find nearest neighbour, then keep unqiue points
 """
 import numpy as np
 import shapely
@@ -138,7 +138,7 @@ else:
                 k = np.squeeze(k, axis=1)
                 
                 #plot original contours
-                plt.plot(k[:,0],k[:,1],'r.-')
+                plt.plot(k[:,0],k[:,1],'r.-', label="Exact contour")
                 
                 #find starting point of contour
                 minIndices = np.where(k[:,1] == k[:,1].min())[0]
@@ -179,7 +179,12 @@ else:
                 newOrder = np.array(finalOrder)
                 #plot retrieved contour
                 plt.title(path)               
-                plt.plot(newOrder[:,0], newOrder[:,1], 'g.-')
+                plt.plot(newOrder[:,0], newOrder[:,1], 'g.-', label="New contour")
+                
+                xscipy = scipy.ndimage.gaussian_filter(newOrder[:,0], 20, radius=20, mode="nearest")
+                yscipy = scipy.ndimage.gaussian_filter(newOrder[:,1], 20, radius=20, mode="nearest") 
+                plt.plot(xscipy, yscipy, 'm.-', label="baseline")
+                plt.legend()
                 plt.show()
                     
         
