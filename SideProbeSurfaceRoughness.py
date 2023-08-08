@@ -136,20 +136,24 @@ else:
                 #Get main contour of interest, ignore pores
                 k = longestContour(cont)
                 
-                #get unique contours and maintain their order
+                #plot original contour in red
+                plt.plot(k[:,0,0],k[:,0,1],'r.-')
+                
+                #get unique points and maintain their order
                 _, idx = np.unique(k, axis=0,  return_index=True)
                 k = k[np.sort(idx, axis=-1)]
                 
                 #change shape to (n,2)
-                k = np.squeeze(k, axis=1)
-                   
+                k = np.squeeze(k, axis=1)                   
                 
-                #break if the next vertex is more than 4 pixels away
+               
                 x = []
                 y = []
                 
                 #index 
                 ind = 0
+                
+                #break if the next vertex is more than 4 pixels away
                 while(ind < len(k)-1):
                     if(fb.euclidDist(k[ind,0], k[ind,1], k[ind+1,0], k[ind+1,1]) > 4):
                         break
@@ -158,9 +162,8 @@ else:
                         y.append(k[ind,1])
                         ind = ind+1
                         
-                #plot orignal in red, retrieved contour in green
+                #plot retrieved contour in green
                 plt.title(path)
-                plt.plot(k[:,0],k[:,1],'r.-')
                 plt.plot(x,y, 'g.-')
                 plt.show()
                     
