@@ -134,7 +134,7 @@ else:
                 #Get main contour of interest, ignore pores
                 k = longestContour(cont)
                 
-                #plot original contours
+                #plot original contour
                 plt.plot(k[:,0,0],k[:,0,1],'r.-')
                 
                 #get unqiue points, maintain order
@@ -153,7 +153,7 @@ else:
                 #array to store ordered points
                 newOrder = [startingCord]
                 
-                #delete starting point from contour array (only pairs values in k)
+                #delete starting point from contour array (only unique pairs in k)
                 k = np.delete(k, minIndx, axis=0)
                 
                 
@@ -169,7 +169,7 @@ else:
                         newOrder.append(k[indices[0]])
                         k = np.delete(k, indices[0], axis=0)
  
-                #turn newOrder to array to slice
+                #turn newOrder to array
                 newOrder = np.array(newOrder)
                 
                 #plot retrieved contour
