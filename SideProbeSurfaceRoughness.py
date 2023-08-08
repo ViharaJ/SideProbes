@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Input: Binary image(s)
-Scale: adjust to fit image resolution
+kNN on unique points
 """
 import numpy as np
 import shapely
@@ -134,19 +133,31 @@ else:
             if (cont):
                 #Get main contour of interest, ignore pores
                 k = longestContour(cont)
+                
+                #get unqiue points, maintain order
                 _, idx = np.unique(k, axis=0,  return_index=True)
                 k = k[np.sort(idx, axis=-1)]
+                
+                #turn contour to shape (n,2)
                 k = np.squeeze(k, axis=1)
+                
+                #plot original contours
                 plt.plot(k[:,0],k[:,1],'r.-')
+                
+                #find starting point of contour
                 minIndices = np.where(k[:,1] == k[:,1].min())[0]
                 minPoints = k[minIndices]
                 minIndx = np.where(minPoints[:,0] == minPoints[:,0].min())[0][0]
                 startingCord = k[minIndices[minIndx]]
+                
+                #array to store ordered points
                 newOrder = [startingCord]
                 
+                #delete starting point from contour array (only pairs values in k)
                 k = np.delete(k, minIndx, axis=0)
                 
                 
+                #Find nearest neighbour, stop when next vertex is dist > 4 away
                 while(len(k) > 1):
                     nbrs = NearestNeighbors(n_neighbors=2, algorithm='ball_tree').fit(k)
                     distance, indices = nbrs.kneighbors([newOrder[-1]])
@@ -157,39 +168,14 @@ else:
                         indices = indices[:,0]
                         newOrder.append(k[indices[0]])
                         k = np.delete(k, indices[0], axis=0)
-                     
-                    
-                # newOrder = np.unique(newOrder, axis=0)
+ 
+                #turn newOrder to array to slice
+                newOrder = np.array(newOrder)
                 
-                x = []
-                y = []
-                
-                for a,b in np.array(newOrder):
-                    x.append(a)
-                    y.append(b)
-                
-                # break if the next vertex is more than 4 pixels away
-                # x = []
-                # y = []
-                
-                # ind = 0
-                # while(ind < len(k)-1):
-                #     if(fb.euclidDist(k[ind,0], k[ind,1], k[ind+1,0], k[ind+1,1]) > 4):
-                #         break
-                #     else:
-                #         x.append(k[ind,0])
-                #         y.append(k[ind,1])
-                #         ind = ind+1
-                        
-                plt.title(path)
-               
-                plt.plot(x,y, 'g.-')
+                #plot retrieved contour
+                plt.title(path)               
+                plt.plot(newOrder[:,0], newOrder[:,1], 'g.-')
                 plt.show()
                     
-                
-                # _, idx = np.unique(k, axis=0,  return_index=True)
-                # k = k[np.sort(idx, axis=-1)]
-                # if(keepImage(img, newOrder, path) == False):
-                #     removedImages.append(path)
-
+        
 
