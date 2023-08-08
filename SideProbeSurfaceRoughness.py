@@ -61,6 +61,7 @@ def checkFeature(image, row, col):
 def keepImage(image, contour, filename):
     """
     img: img opencv array
+    contour: list or array with shape (n,2)
     """
     contour = np.array(contour)
     ratio = image.shape[0]/image.shape[1]
@@ -134,62 +135,36 @@ else:
             if (cont):
                 #Get main contour of interest, ignore pores
                 k = longestContour(cont)
+                
+                #get unique contours and maintain their order
                 _, idx = np.unique(k, axis=0,  return_index=True)
                 k = k[np.sort(idx, axis=-1)]
+                
+                #change shape to (n,2)
                 k = np.squeeze(k, axis=1)
-                plt.plot(k[:,0],k[:,1],'r.-')
-                minIndices = np.where(k[:,1] == k[:,1].min())[0]
-                minPoints = k[minIndices]
-                minIndx = np.where(minPoints[:,0] == minPoints[:,0].min())[0][0]
-                startingCord = k[minIndices[minIndx]]
-                newOrder = [startingCord]
+                   
                 
-                k = np.delete(k, minIndx, axis=0)
-                
-                
-                while(len(k) > 1):
-                    nbrs = NearestNeighbors(n_neighbors=2, algorithm='ball_tree').fit(k)
-                    distance, indices = nbrs.kneighbors([newOrder[-1]])
-                    
-                    if(distance[0][0] > 4):
-                        break
-                    else:
-                        indices = indices[:,0]
-                        newOrder.append(k[indices[0]])
-                        k = np.delete(k, indices[0], axis=0)
-                     
-                    
-                # newOrder = np.unique(newOrder, axis=0)
-                
+                #break if the next vertex is more than 4 pixels away
                 x = []
                 y = []
                 
-                for a,b in np.array(newOrder):
-                    x.append(a)
-                    y.append(b)
-                
-                # break if the next vertex is more than 4 pixels away
-                # x = []
-                # y = []
-                
-                # ind = 0
-                # while(ind < len(k)-1):
-                #     if(fb.euclidDist(k[ind,0], k[ind,1], k[ind+1,0], k[ind+1,1]) > 4):
-                #         break
-                #     else:
-                #         x.append(k[ind,0])
-                #         y.append(k[ind,1])
-                #         ind = ind+1
+                #index 
+                ind = 0
+                while(ind < len(k)-1):
+                    if(fb.euclidDist(k[ind,0], k[ind,1], k[ind+1,0], k[ind+1,1]) > 4):
+                        break
+                    else:
+                        x.append(k[ind,0])
+                        y.append(k[ind,1])
+                        ind = ind+1
                         
+                #plot orignal in red, retrieved contour in green
                 plt.title(path)
-               
+                plt.plot(k[:,0],k[:,1],'r.-')
                 plt.plot(x,y, 'g.-')
                 plt.show()
                     
                 
-                # _, idx = np.unique(k, axis=0,  return_index=True)
-                # k = k[np.sort(idx, axis=-1)]
-                # if(keepImage(img, newOrder, path) == False):
-                #     removedImages.append(path)
+               
 
 
