@@ -134,10 +134,6 @@ else:
                 #Get main contour of interest, ignore pores
                 k = longestContour(cont)
                 
-                #get unqiue points, maintain order
-                _, idx = np.unique(k, axis=0,  return_index=True)
-                k = k[np.sort(idx, axis=-1)]
-                
                 #turn contour to shape (n,2)
                 k = np.squeeze(k, axis=1)
                 
@@ -169,9 +165,18 @@ else:
                         newOrder.append(k[indices[0]])
                         k = np.delete(k, indices[0], axis=0)
  
-                #turn newOrder to array to slice
-                newOrder = np.array(newOrder)
+            
+                #get unqiue points, maintain order
+                _, idx = np.unique(newOrder, axis=0,  return_index=True)
+                newOrderIndx = np.sort(idx, axis=-1)
                 
+                finalOrder = []
+                
+                for p in newOrderIndx:
+                    finalOrder.append(newOrder[p])
+                    
+                
+                newOrder = np.array(finalOrder)
                 #plot retrieved contour
                 plt.title(path)               
                 plt.plot(newOrder[:,0], newOrder[:,1], 'g.-')
