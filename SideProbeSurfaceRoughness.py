@@ -137,7 +137,7 @@ else:
                 k = longestContour(cont)
                 
                 #plot original contour in red
-                plt.plot(k[:,0,0],k[:,0,1],'r.-')
+                plt.plot(k[:,0,0],k[:,0,1],'r.-', label="Exact contour")
                 
                 #get unique points and maintain their order
                 _, idx = np.unique(k, axis=0,  return_index=True)
@@ -164,7 +164,12 @@ else:
                         
                 #plot retrieved contour in green
                 plt.title(path)
-                plt.plot(x,y, 'g.-')
+                plt.plot(x,y, 'g.-', label="New contour")
+                
+                xscipy = scipy.ndimage.gaussian_filter(x, 20, radius=20, mode="nearest")
+                yscipy = scipy.ndimage.gaussian_filter(y, 20, radius=20, mode="nearest") 
+                plt.plot(xscipy, yscipy, 'm.-', label="baseline")
+                plt.legend()
                 plt.show()
                     
                 
