@@ -14,6 +14,9 @@ import os
 import sys
 import math
 import time
+import collections
+
+
 
 def longestContour(contours):
     maxIndx = 0
@@ -104,8 +107,20 @@ else:
                 distanceE = []     
                 saveIndex = []
                 
-                x = np.array(k[:,0,0])*scale
-                y = np.array(k[:,0,1])*scale
+                x = (k[:,0,0])*scale
+                y = (k[:,0,1])*scale
+                
+                # currx = []
+                # curry = []
+                
+                # for i in range(len(x)):
+                #     plt.plot(x[i], y[i], 'r.')
+                #     plt.plot(currx, curry, 'b.-')
+                #     plt.show()
+                    
+                #     currx.append(x[i])
+                #     curry.append(y[i])
+                    
                 
 
                 # pairs = []                
@@ -121,24 +136,26 @@ else:
                 #  pairs.append([x[i], y[i]])
                     
 
-                # rCont = np.squeeze(k*scale, axis=1)                                 
+                rCont = np.squeeze(k*scale, axis=1) 
+
+                print(collections.Counter(y.tolist()))                                
                 # polyGon = shapely.geometry.LineString(rCont)
              
-                sig = 15
-                size = 12
-                kernel = fb.gauss1D(size, sig)   
+                # sig = 15
+                # size = 12
+                # kernel = fb.gauss1D(size, sig)   
                 
-                xscipy = signal.convolve(x, kernel, mode='valid')
-                yscipy = signal.convolve(y, kernel, mode='valid')
+                # xscipy = signal.convolve(x, kernel, mode='valid')
+                # yscipy = signal.convolve(y, kernel, mode='valid')
                 
-                dx = np.diff(xscipy)
-                dy = np.diff(yscipy)
+                # dx = np.diff(xscipy)
+                # dy = np.diff(yscipy)
                 
-                plt.title(path)
-                plt.plot(x,y, 'b.-', label="Exact contour")
-                plt.plot(xscipy, yscipy, 'r.-', label="Baseline")
-                plt.legend()
-                plt.show()
+                # plt.title(path)
+                # plt.plot(x,y, 'b.-', label="Exact contour")
+                # plt.plot(xscipy, yscipy, 'r.-', label="Baseline")
+                # plt.legend()
+                # plt.show()
                 
                 
                 # for j in range(len(dx)):
