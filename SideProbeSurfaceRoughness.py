@@ -134,9 +134,10 @@ else:
                 
                 #turn contour to shape (n,2)
                 k = np.squeeze(k, axis=1)
+                original = k.copy()
                 
                 #plot original contours
-                plt.plot(k[:,0], k[:,1],'r.-', label="Exact contour")
+                # plt.plot(k[:,0], k[:,1],'r.-', label="Exact contour")
                 
                 # sig is sigma of Gauss, size is kernel's full length
                 sig = 15
