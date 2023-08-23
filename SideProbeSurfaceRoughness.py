@@ -108,15 +108,13 @@ def nearestNeighbour(x1, y1, allX, allY):
 
 start = time.time()
 #"C:/Users/v.jayaweera/Pictures/FindingEdgesCutContour/OneFileContours"
-sourcePath = "C:/Users/v.jayaweera/Documents/Side Probes/Roughness_Routine_Output/Hantel01_Outline"
-csvPath = '/Users/v.jayaweera/Documents/SRAvg-ContourDiv-NoInvert.csv'
+sourcePath = "C:/Users/v.jayaweera/Documents/Side Probes/Temporary Scripts/CreateRemoval_CSV_Doc/Hantel01_Outline_Filtered"
+csvPath = '/Users/v.jayaweera/Documents/Hantel01_Outline_Filtered-SRAvg.csv'
 acceptedFileTypes = ["jpg", "png", "bmp", "tif"]
 dirPictures = os.listdir(sourcePath)
 imageID = []
 scale = 6.249
 averageSR = []
-doubleBack = 0
-removedImages = []
 
 
 if(len(dirPictures)  <= 0):
@@ -138,8 +136,13 @@ else:
                 k = np.squeeze(k, axis=1)
                 
                 #plot original contours
-                plt.plot(k[:,0],k[:,1],'r.-', label="Exact contour")
+                plt.plot(k[:,0], k[:,1],'r.-', label="Exact contour")
                 
+                # sig is sigma of Gauss, size is kernel's full length
+                sig = 15
+                size = 15
+                kernel = fb.gauss1D(size, sig)   
+            
                 #find starting point of contour
                 minIndices = np.where(k[:,1] == k[:,1].min())[0]
                 minPoints = k[minIndices]
@@ -168,7 +171,7 @@ else:
             
                 #get unqiue points, maintain order
                 _, idx = np.unique(newOrder, axis=0,  return_index=True)
-                newOrderIndx = np.sort(idx, axis=-1)
+                newOrderIndx = np.sort(idx)
                 
                 finalOrder = []
                 
@@ -176,16 +179,24 @@ else:
                     finalOrder.append(newOrder[p])
                     
                 
-                newOrder = np.array(finalOrder)
-                #plot retrieved contour
-                plt.title(path)               
-                plt.plot(newOrder[:,0], newOrder[:,1], 'g.-', label="New contour")
+                finalOrder = np.array(finalOrder)
+                x = np.array(finalOrder[:,0])
+                y = np.array(finalOrder[:,1])
                 
-                xscipy = scipy.ndimage.gaussian_filter(newOrder[:,0], 20, radius=20, mode="nearest")
-                yscipy = scipy.ndimage.gaussian_filter(newOrder[:,1], 20, radius=20, mode="nearest") 
-                plt.plot(xscipy, yscipy, 'm.-', label="baseline")
-                plt.legend()
-                plt.show()
+                #plot retrieved contour
+                # plt.title(path)               
+                # plt.plot(finalOrder[:,0], finalOrder[:,1], 'g.-', label="New contour")
+                
+                #get baseline
+                xscipy = signal.convolve(x, kernel, mode='valid')
+                yscipy = signal.convolve(y, kernel, mode='valid')
+                
+                #stack coordinates to be shape (n,2)
+                stack = np.stack((xscipy, yscipy), axis=-1)
+                
+                # plt.plot(xscipy, yscipy, 'm.-', label="baseline")
+                # plt.legend()
+                # plt.show()
                     
         
 
