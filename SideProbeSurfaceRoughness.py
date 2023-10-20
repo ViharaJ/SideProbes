@@ -16,6 +16,10 @@ import time
 from scipy import spatial
 from sklearn.neighbors import NearestNeighbors
 
+# '''
+# radius = nonminal file;
+# fit circle
+# '''
 def longestContour(contours):
     maxIndx = 0
     maxLen = len(contours[0])
@@ -108,22 +112,30 @@ def nearestNeighbour(x1, y1, allX, allY):
 
 start = time.time()
 #"C:/Users/v.jayaweera/Pictures/FindingEdgesCutContour/OneFileContours"
-sourcePath = "C:/Users/v.jayaweera/Documents/Side Probes/Temporary Scripts/CreateRemoval_CSV_Doc/Hantel01_Outline_Filtered"
-csvPath = '/Users/v.jayaweera/Documents/Hantel01_Outline_Filtered-SRAvg.csv'
+# sourcePath = "C:/Users/v.jayaweera/Documents/Side Probes/Temporary Scripts/CreateRemoval_CSV_Doc/Hantel01_Filtered"
+sourcePath = "C:/Users/v.jayaweera/Documents/Anne/Side Probes/Roughness_Routine_Output/Hantel13"
+csvPath = '/Users/v.jayaweera/Documents/Hantel03_Try3_Outline_Filtered-SRAvg.csv'
 acceptedFileTypes = ["jpg", "png", "bmp", "tif"]
 dirPictures = os.listdir(sourcePath)
 imageID = []
-scale = 6.249
+scale = None
 averageSR = []
 
 
 if(len(dirPictures)  <= 0):
     print('The specified folder is empty!')
     sys.exit()
-else:    
-    for path in dirPictures:
+else:
+    counter = 0
+    for path in dirPictures[::2]:
         if( '.' in path and path.split('.')[-1].lower() in acceptedFileTypes):
-            doubleBack = 0
+            
+            if scale is None:
+                scale = float(path.split("-")[1])
+                
+            distanceE = []
+            saveIndex = []
+            
             # Extract contour
             img = cv2.imread(sourcePath + '/' + path, cv2.IMREAD_GRAYSCALE)
             cont, hier = cv2.findContours(img, cv2.RETR_LIST , cv2.CHAIN_APPROX_NONE)
@@ -134,14 +146,13 @@ else:
                 
                 #turn contour to shape (n,2)
                 k = np.squeeze(k, axis=1)
-                original = k.copy()
-                
+                original = k 
                 #plot original contours
                 # plt.plot(k[:,0], k[:,1],'r.-', label="Exact contour")
                 
                 # sig is sigma of Gauss, size is kernel's full length
-                sig = 15
-                size = 15
+                sig = 350
+                size = 319
                 kernel = fb.gauss1D(size, sig)   
             
                 #find starting point of contour
@@ -181,23 +192,61 @@ else:
                     
                 
                 finalOrder = np.array(finalOrder)
-                x = np.array(finalOrder[:,0])
-                y = np.array(finalOrder[:,1])
                 
-                #plot retrieved contour
-                # plt.title(path)               
-                # plt.plot(finalOrder[:,0], finalOrder[:,1], 'g.-', label="New contour")
-                
-                #get baseline
-                xscipy = signal.convolve(x, kernel, mode='valid')
-                yscipy = signal.convolve(y, kernel, mode='valid')
-                
-                #stack coordinates to be shape (n,2)
-                stack = np.stack((xscipy, yscipy), axis=-1)
-                
-                # plt.plot(xscipy, yscipy, 'm.-', label="baseline")
-                # plt.legend()
-                # plt.show()
+                if(len(finalOrder) >= (len(original)/2)*0.95):                    
+                    x = np.array(finalOrder[:,0])
+                    y = np.array(finalOrder[:,1])
                     
-        
-
+                    #plot retrieved contour
+                    ratio = img.shape[0]/img.shape[1]
+                    plt.title(path)     
+                    plt.plot(finalOrder[:,0], finalOrder[:,1], 'g.-', label="New contour")
+                    
+                    #get baseline
+                    xscipy = signal.convolve(x, kernel, mode='valid')
+                    yscipy = signal.convolve(y, kernel, mode='valid')
+                    
+                    dx = np.diff(xscipy)
+                    dy = np.diff(yscipy)
+                    
+                    #TODO REMOVE LATER;TESTING
+                    print("Array lengths", len(x), len(xscipy))
+                    
+                    plt.plot(xscipy, yscipy, 'm.-', label="baseline")
+                    x_left, x_right = plt.gca().get_xlim()
+                    y_low, y_high = plt.gca().get_ylim()
+                    plt.gca().set_aspect(abs((x_right-x_left)/(y_low-y_high))*ratio)
+                    plt.legend()
+                    plt.show()
+                    
+                    polyGon = shapely.geometry.LineString(finalOrder)
+                    
+                    for j in range(1,len(dx)):
+                        xs, ys = fb.createNormalLine(xscipy[j], yscipy[j], dx[j], dy[j])
+                       
+                        
+                        stack = np.stack((xs,ys), axis=-1)
+                        line = shapely.geometry.LineString(stack)
+                        
+                        #TODO remove this from main CODE
+                        if(polyGon.intersects(line)):
+                            #intersection geometry
+                            interPoints = polyGon.intersection(line)
+                            
+                            #intersection point
+                            mx, my = fb.proccessIntersectionPoint(interPoints, xscipy[j], yscipy[j])
+                            
+                            euD = fb.euclidDist(xscipy[j], yscipy[j], mx, my)
+                            distanceE.append(euD)
+                            saveIndex.append(j)
+                    
+                    if len(distanceE) > 0:
+                        print(np.average(distanceE))
+                        averageSR.append(np.average(distanceE))
+            counter = counter + 1
+            print(counter, "/", len(dirPictures))
+                
+                
+if len(averageSR) > 0:
+    print("Average Sa: ", np.average(averageSR)*scale*1000)
+    sys.exit()

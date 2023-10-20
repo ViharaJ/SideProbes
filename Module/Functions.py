@@ -91,11 +91,27 @@ def contoursToPoly(cont):
     return allPolys
     
 
+def processLineString(line, x1, y1):
+    '''
+    line : shapely linestring geometry
+    x1: x-coord of point on baseline, 
+    y1: y-coord of point on baseline, 
+    returns: x, y of closest inersection point
+    '''
+    all_x, all_y = line.xy
+    distances = euclidDist(all_x, all_y, x1, y1)
+    if len(distances) == 0:
+        print(all_x, all_y)
+    minIndx = distances.argmin(axis=0) #changed here
+    
+    return all_x[minIndx], all_y[minIndx]
+  
+    
 def proccessIntersectionPoint (interPoints, x1, y1):
     '''
     interPoints: shapely intersection geometry, 
     x1: x-coord of point on baseline, 
-    y1: y-coord of point on baseline, \n
+    y1: y-coord of point on baseline, 
     returns: x, y of closest inersection point
     '''
     pointType = shapely.get_type_id(interPoints)
@@ -114,12 +130,15 @@ def proccessIntersectionPoint (interPoints, x1, y1):
                 minDist = d
         return mx, my
     elif(pointType == 1):
-        all_x, all_y = interPoints.xy
-        distances = euclidDist(all_x, all_y, x1, y1)
-        
-        minIndx = distances.argmin(axis=0) #changed here
-        
-        return all_x[minIndx], all_y[minIndx]
+        return processLineString(interPoints, x1, y1)
+    elif pointType == 5:
+        mx, my = None, None 
+        minDist  = 10000        
+        for l in interPoints.geoms:
+            nx,ny = processLineString(l, x1, y1)
+            if(euclidDist(nx,ny,x1,y1) < minDist):
+                mx, my = nx, ny                
+        return mx, my
     elif(pointType == 7):
         allObjects = interPoints.geoms
         mx, my = None, None
