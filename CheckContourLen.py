@@ -23,7 +23,7 @@ def longestContour(contours):
 
 
 
-sourcePath = "C:/Users/v.jayaweera/Documents/Anne/Side Probes/Roughness_Routine_Output/TestImages"
+sourcePath = "C:/Users/v.jayaweera/Documents/Anne/Side Probes/Roughness_Routine_Output_Downskin/Hantel16"
 
 
 for file in os.listdir(sourcePath):

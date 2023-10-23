@@ -113,7 +113,7 @@ def nearestNeighbour(x1, y1, allX, allY):
 start = time.time()
 #"C:/Users/v.jayaweera/Pictures/FindingEdgesCutContour/OneFileContours"
 # sourcePath = "C:/Users/v.jayaweera/Documents/Side Probes/Temporary Scripts/CreateRemoval_CSV_Doc/Hantel01_Filtered"
-sourcePath = "C:/Users/v.jayaweera/Documents/Anne/Side Probes/Roughness_Routine_Output/Hantel13"
+sourcePath = "C:/Users/v.jayaweera/Documents/Anne/Side Probes/Roughness_Routine_Output_Downskin/Hantel13"
 csvPath = '/Users/v.jayaweera/Documents/Hantel03_Try3_Outline_Filtered-SRAvg.csv'
 acceptedFileTypes = ["jpg", "png", "bmp", "tif"]
 dirPictures = os.listdir(sourcePath)
@@ -193,14 +193,16 @@ else:
                 
                 finalOrder = np.array(finalOrder)
                 
-                if(len(finalOrder) >= (len(original)/2)*0.95):                    
+                #remove laer 
+          
+                if(len(finalOrder) >= 100):#(len(original)/2)*0.95): 
                     x = np.array(finalOrder[:,0])
                     y = np.array(finalOrder[:,1])
                     
                     #plot retrieved contour
                     ratio = img.shape[0]/img.shape[1]
                     plt.title(path)     
-                    plt.plot(finalOrder[:,0], finalOrder[:,1], 'g.-', label="New contour")
+                    plt.plot(x, y, 'g.-', label="New contour")
                     
                     #get baseline
                     xscipy = signal.convolve(x, kernel, mode='valid')
