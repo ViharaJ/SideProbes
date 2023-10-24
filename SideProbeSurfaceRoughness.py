@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 kNN2: Find nearest neighbour, then keep unqiue points
 """
@@ -113,7 +114,7 @@ def nearestNeighbour(x1, y1, allX, allY):
 start = time.time()
 #"C:/Users/v.jayaweera/Pictures/FindingEdgesCutContour/OneFileContours"
 # sourcePath = "C:/Users/v.jayaweera/Documents/Side Probes/Temporary Scripts/CreateRemoval_CSV_Doc/Hantel01_Filtered"
-sourcePath = "C:/Users/v.jayaweera/Documents/Anne/Side Probes/Roughness_Routine_Output_Downskin/Hantel13"
+sourcePath = "C:/Users/v.jayaweera/Documents/Anne/Side Probes/Roughness_Routine_Output_Downskin/Hantel16-C1"
 csvPath = '/Users/v.jayaweera/Documents/Hantel03_Try3_Outline_Filtered-SRAvg.csv'
 
 acceptedFileTypes = ["jpg", "png", "bmp", "tif"]
@@ -170,9 +171,6 @@ else:
                 #delete starting point from contour array (only pairs values in k)
                 k = np.delete(k, minIndx, axis=0)
                 
-                plt.plot(k[:,0], k[:,1], "r.-")
-                plt.plot(newOrder[0][0], newOrder[0][1], "g.")
-                plt.show()
                 
                 #Find nearest neighbour, stop when next vertex is dist > 4 away
                 while(len(k) > 1):
@@ -185,9 +183,8 @@ else:
                         indices = indices[:,0]
                         newOrder.append(k[indices[0]])
                         k = np.delete(k, indices[0], axis=0)
-                        
-                   
-                    
+ 
+            
                 #get unqiue points, maintain order
                 _, idx = np.unique(newOrder, axis=0,  return_index=True)
                 newOrderIndx = np.sort(idx)
@@ -199,7 +196,7 @@ else:
                 
                 finalOrder = np.array(finalOrder)
           
-                if(len(finalOrder) >= 100):#(len(original)/2)*0.95): 
+                if(len(finalOrder) >= (len(original)/2)*0.50): 
                     x = np.array(finalOrder[:,0])
                     y = np.array(finalOrder[:,1])
                     
@@ -225,8 +222,31 @@ else:
                     plt.legend()
                     plt.show()
                     
+                    polyGon = shapely.geometry.LineString(finalOrder)
                     
-            counter = counter + 1
+                    for j in range(1,len(dx)):
+                        xs, ys = fb.createNormalLine(xscipy[j], yscipy[j], dx[j], dy[j])
+                       
+                        
+                        stack = np.stack((xs,ys), axis=-1)
+                        line = shapely.geometry.LineString(stack)
+                        
+                        #TODO remove this from main CODE
+                        if(polyGon.intersects(line)):
+                            #intersection geometry
+                            interPoints = polyGon.intersection(line)
+                            
+                            #intersection point
+                            mx, my = fb.proccessIntersectionPoint(interPoints, xscipy[j], yscipy[j])
+                            
+                            euD = fb.euclidDist(xscipy[j], yscipy[j], mx, my)
+                            distanceE.append(euD)
+                            saveIndex.append(j)
+                    
+                    if len(distanceE) > 0:
+                        print(np.average(distanceE))
+                        averageSR.append(np.average(distanceE))
+                        counter = counter + 1
             print(counter, "/", len(dirPictures))
                 
                 
