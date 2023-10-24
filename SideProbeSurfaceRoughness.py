@@ -114,7 +114,7 @@ def nearestNeighbour(x1, y1, allX, allY):
 start = time.time()
 #"C:/Users/v.jayaweera/Pictures/FindingEdgesCutContour/OneFileContours"
 # sourcePath = "C:/Users/v.jayaweera/Documents/Side Probes/Temporary Scripts/CreateRemoval_CSV_Doc/Hantel01_Filtered"
-sourcePath = "C:/Users/v.jayaweera/Documents/Anne/Side Probes/Roughness_Routine_Output_Downskin/Hantel16-C1"
+sourcePath = "C:/Users/v.jayaweera/Documents/Anne/Side Probes/Roughness_Routine_Output_Downskin/Hantel14-C1"
 csvPath = '/Users/v.jayaweera/Documents/Hantel03_Try3_Outline_Filtered-SRAvg.csv'
 
 acceptedFileTypes = ["jpg", "png", "bmp", "tif"]
@@ -131,7 +131,7 @@ if(len(dirPictures)  <= 0):
 
 else:
     counter = 0
-    for path in dirPictures[::2]:
+    for path in dirPictures:
         if( '.' in path and path.split('.')[-1].lower() in acceptedFileTypes):
             
             if scale is None:
@@ -177,7 +177,7 @@ else:
                     nbrs = NearestNeighbors(n_neighbors=2, algorithm='ball_tree').fit(k)
                     distance, indices = nbrs.kneighbors([newOrder[-1]])
                     
-                    if(distance[0][0] > 25):
+                    if(distance[0][0] > 5):
                         break
                     else:
                         indices = indices[:,0]
@@ -196,7 +196,7 @@ else:
                 
                 finalOrder = np.array(finalOrder)
           
-                if(len(finalOrder) >= (len(original)/2)*0.90): 
+                if(len(finalOrder) >= (len(original)/2)*0.95): 
                     x = np.array(finalOrder[:,0])
                     y = np.array(finalOrder[:,1])
                     
