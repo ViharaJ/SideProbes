@@ -114,7 +114,7 @@ def nearestNeighbour(x1, y1, allX, allY):
 start = time.time()
 #"C:/Users/v.jayaweera/Pictures/FindingEdgesCutContour/OneFileContours"
 # sourcePath = "C:/Users/v.jayaweera/Documents/Side Probes/Temporary Scripts/CreateRemoval_CSV_Doc/Hantel01_Filtered"
-sourcePath = "C:/Users/v.jayaweera/Documents/Anne/Side Probes/Roughness_Routine_Output_Downskin/Hantel13"
+sourcePath = "C:/Users/v.jayaweera/Documents/Anne/Side Probes/Roughness_Routine_Output_Downskin/Hantel16-C1"
 csvPath = '/Users/v.jayaweera/Documents/Hantel03_Try3_Outline_Filtered-SRAvg.csv'
 
 acceptedFileTypes = ["jpg", "png", "bmp", "tif"]
@@ -160,7 +160,7 @@ else:
                 kernel = fb.gauss1D(size, sig)   
             
                 #find starting point of contour
-                minIndices = np.where(k[:,1] == k[:,1].min())[0]
+                minIndices = np.where(k[:,1] == k[:,1].max())[0]
                 minPoints = k[minIndices]
                 minIndx = np.where(minPoints[:,0] == minPoints[:,0].min())[0][0]
                 startingCord = k[minIndices[minIndx]]
@@ -196,7 +196,7 @@ else:
                 
                 finalOrder = np.array(finalOrder)
           
-                if(len(finalOrder) >= 100):#(len(original)/2)*0.95): 
+                if(len(finalOrder) >= (len(original)/2)*0.50): 
                     x = np.array(finalOrder[:,0])
                     y = np.array(finalOrder[:,1])
                     
@@ -246,7 +246,7 @@ else:
                     if len(distanceE) > 0:
                         print(np.average(distanceE))
                         averageSR.append(np.average(distanceE))
-            counter = counter + 1
+                        counter = counter + 1
             print(counter, "/", len(dirPictures))
                 
                 
