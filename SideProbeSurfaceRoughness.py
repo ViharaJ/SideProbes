@@ -131,7 +131,8 @@ if(len(dirPictures)  <= 0):
 
 else:
     counter = 0
-    for path in dirPictures[::2]:
+    for path in dirPictures:
+        print("processing ", path)
         if( '.' in path and path.split('.')[-1].lower() in acceptedFileTypes):
             
             if scale is None:
@@ -206,7 +207,7 @@ else:
                 
                 if len(finalOrder) >= (len(original)/2)*0.95:
                     counter = counter +1
-                    print(counter, "/", len(dirPictures))
+                    # print(counter, "/", len(dirPictures))
                 
                 x = np.array(finalOrder[:,0])
                 y = np.array(finalOrder[:,1])
@@ -224,7 +225,7 @@ else:
                 dy = np.diff(yscipy)
                 
                 #TODO REMOVE LATER;TESTING
-                print("Array lengths", len(x), len(xscipy))
+                # pri nt("Array lengths", len(x), len(xscipy))
                 
                 plt.plot(xscipy, yscipy, 'm.-', label="baseline")
                 x_left, x_right = plt.gca().get_xlim()
@@ -232,6 +233,9 @@ else:
                 plt.gca().set_aspect(abs((x_right-x_left)/(y_low-y_high))*ratio)
                 plt.legend()
                 plt.show()
+                
+            else:
+                print(path)
                     
     
                 
