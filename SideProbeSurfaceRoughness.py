@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 kNN2: Find nearest neighbour, then keep unqiue points
 """
@@ -160,7 +159,7 @@ else:
                 kernel = fb.gauss1D(size, sig)   
             
                 #find starting point of contour
-                minIndices = np.where(k[:,1] == k[:,1].min())[0]
+                minIndices = np.where(k[:,1] == k[:,1].max())[0]
                 minPoints = k[minIndices]
                 minIndx = np.where(minPoints[:,0] == minPoints[:,0].min())[0][0]
                 startingCord = k[minIndices[minIndx]]
@@ -171,6 +170,9 @@ else:
                 #delete starting point from contour array (only pairs values in k)
                 k = np.delete(k, minIndx, axis=0)
                 
+                plt.plot(k[:,0], k[:,1], "r.-")
+                plt.plot(newOrder[0][0], newOrder[0][1], "g.")
+                plt.show()
                 
                 #Find nearest neighbour, stop when next vertex is dist > 4 away
                 while(len(k) > 1):
@@ -183,8 +185,9 @@ else:
                         indices = indices[:,0]
                         newOrder.append(k[indices[0]])
                         k = np.delete(k, indices[0], axis=0)
- 
-            
+                        
+                   
+                    
                 #get unqiue points, maintain order
                 _, idx = np.unique(newOrder, axis=0,  return_index=True)
                 newOrderIndx = np.sort(idx)
@@ -222,30 +225,7 @@ else:
                     plt.legend()
                     plt.show()
                     
-                    polyGon = shapely.geometry.LineString(finalOrder)
                     
-                    for j in range(1,len(dx)):
-                        xs, ys = fb.createNormalLine(xscipy[j], yscipy[j], dx[j], dy[j])
-                       
-                        
-                        stack = np.stack((xs,ys), axis=-1)
-                        line = shapely.geometry.LineString(stack)
-                        
-                        #TODO remove this from main CODE
-                        if(polyGon.intersects(line)):
-                            #intersection geometry
-                            interPoints = polyGon.intersection(line)
-                            
-                            #intersection point
-                            mx, my = fb.proccessIntersectionPoint(interPoints, xscipy[j], yscipy[j])
-                            
-                            euD = fb.euclidDist(xscipy[j], yscipy[j], mx, my)
-                            distanceE.append(euD)
-                            saveIndex.append(j)
-                    
-                    if len(distanceE) > 0:
-                        print(np.average(distanceE))
-                        averageSR.append(np.average(distanceE))
             counter = counter + 1
             print(counter, "/", len(dirPictures))
                 
