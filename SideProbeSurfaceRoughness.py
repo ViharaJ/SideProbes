@@ -110,7 +110,7 @@ def nearestNeighbour(x1, y1, allX, allY):
 
 start = time.time()
 #"C:/Users/v.jayaweera/Pictures/FindingEdgesCutContour/OneFileContours"
-sourcePath = "C:/Users/v.jayaweera/Documents/Side Probes/Roughness_Routine_Output/Hantel01_Outline"
+sourcePath = "C:/Users/v.jayaweera/Documents/Anne/Side Probes/Roughness_Routine_Output_Downskin/Hantel13"
 csvPath = '/Users/v.jayaweera/Documents/SRAvg-ContourDiv-NoInvert.csv'
 acceptedFileTypes = ["jpg", "png", "bmp", "tif"]
 dirPictures = os.listdir(sourcePath)
