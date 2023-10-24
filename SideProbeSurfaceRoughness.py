@@ -177,7 +177,7 @@ else:
                     nbrs = NearestNeighbors(n_neighbors=2, algorithm='ball_tree').fit(k)
                     distance, indices = nbrs.kneighbors([newOrder[-1]])
                     
-                    if(distance[0][0] > 4):
+                    if(distance[0][0] > 25):
                         break
                     else:
                         indices = indices[:,0]
@@ -196,7 +196,7 @@ else:
                 
                 finalOrder = np.array(finalOrder)
           
-                if(len(finalOrder) >= (len(original)/2)*0.50): 
+                if(len(finalOrder) >= (len(original)/2)*0.90): 
                     x = np.array(finalOrder[:,0])
                     y = np.array(finalOrder[:,1])
                     
