@@ -13,6 +13,7 @@ import os
 import sys
 import math
 import time
+
 from scipy import spatial
 from sklearn.neighbors import NearestNeighbors
 
@@ -115,6 +116,7 @@ start = time.time()
 # sourcePath = "C:/Users/v.jayaweera/Documents/Side Probes/Temporary Scripts/CreateRemoval_CSV_Doc/Hantel01_Filtered"
 sourcePath = "C:/Users/v.jayaweera/Documents/Anne/Side Probes/Roughness_Routine_Output_Downskin/Hantel13"
 csvPath = '/Users/v.jayaweera/Documents/Hantel03_Try3_Outline_Filtered-SRAvg.csv'
+
 acceptedFileTypes = ["jpg", "png", "bmp", "tif"]
 dirPictures = os.listdir(sourcePath)
 imageID = []
@@ -122,9 +124,11 @@ scale = None
 averageSR = []
 
 
+
 if(len(dirPictures)  <= 0):
     print('The specified folder is empty!')
     sys.exit()
+
 else:
     counter = 0
     for path in dirPictures[::2]:
@@ -189,11 +193,8 @@ else:
                 
                 for p in newOrderIndx:
                     finalOrder.append(newOrder[p])
-                    
                 
                 finalOrder = np.array(finalOrder)
-                
-                #remove laer 
           
                 if(len(finalOrder) >= 100):#(len(original)/2)*0.95): 
                     x = np.array(finalOrder[:,0])
@@ -252,3 +253,4 @@ else:
 if len(averageSR) > 0:
     print("Average Sa: ", np.average(averageSR)*scale*1000)
     sys.exit()
+
