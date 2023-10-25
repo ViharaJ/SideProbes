@@ -219,7 +219,7 @@ else:
                 
                 #get baseline
                 xscipy = signal.convolve(x, kernel, mode='valid')
-                yscipy = signal.convolve(y, kernel, mode='valid')
+                yscipy = signal.convolve(y, kernel, mode='valid') 
                 
                 dx = np.diff(xscipy)
                 dy = np.diff(yscipy)
