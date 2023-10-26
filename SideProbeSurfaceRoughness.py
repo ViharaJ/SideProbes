@@ -147,14 +147,10 @@ def recreateContour(fullContour):
     
 #===============================MAIN======================================
 start = time.time()
-<<<<<<< HEAD
 
-sourcePath = "C:/Users/v.jayaweera/Documents/Anne/Side Probes/Roughness_Routine_Output_Sideskin/Hantel02-C1"
-=======
-#"C:/Users/v.jayaweera/Pictures/FindingEdgesCutContour/OneFileContours"
-# sourcePath = "C:/Users/v.jayaweera/Documents/Side Probes/Temporary Scripts/CreateRemoval_CSV_Doc/Hantel01_Filtered"
-sourcePath = "C:/Users/v.jayaweera/Documents/Anne/Side Probes/Roughness_Routine_Output_Downskin/Hantel16-C2"
->>>>>>> main
+
+sourcePath = "C:/Users/v.jayaweera/Documents/Anne/Side Probes/Roughness_Routine_Output_Sideskin/Hantel16-C2"
+
 csvPath = '/Users/v.jayaweera/Documents/Hantel03_Try3_Outline_Filtered-SRAvg.csv'
 
 acceptedFileTypes = ["jpg", "png", "bmp", "tif"]
@@ -205,46 +201,6 @@ else:
                 sig = 350
                 size = 319
                 kernel = fb.gauss1D(size, sig)   
-<<<<<<< HEAD
-            
-                #find starting point of contour
-                minIndices = np.where(k[:,1] == k[:,1].max())[0]
-                minPoints = k[minIndices]
-                minIndx = np.where(minPoints[:,0] == minPoints[:,0].min())[0][0]
-                startingCord = k[minIndices[minIndx]]
-                
-                #array to store ordered points
-                newOrder = [startingCord]
-                
-                #delete starting point from contour array (only pairs values in k)
-                k = np.delete(k, minIndx, axis=0)
-                
-                
-                #Find nearest neighbour, stop when next vertex is dist > 4 away
-                while(len(k) > 1):
-                    nbrs = NearestNeighbors(n_neighbors=2, algorithm='ball_tree').fit(k)
-                    distance, indices = nbrs.kneighbors([newOrder[-1]])
-                    
-                    if(distance[0][0] > 15):
-                        break
-                    else:
-                        indices = indices[:,0]
-                        newOrder.append(k[indices[0]])
-                        k = np.delete(k, indices[0], axis=0)
- 
-            
-                #get unqiue points, maintain order
-                _, idx = np.unique(newOrder, axis=0,  return_index=True)
-                newOrderIndx = np.sort(idx)
-                
-                finalOrder = []
-                
-                for p in newOrderIndx:
-                    finalOrder.append(newOrder[p])
-                
-                finalOrder = np.array(finalOrder)
-=======
->>>>>>> main
           
                 if(len(finalOrder) >= (len(original)/2)*0.95): 
                     x = np.array(finalOrder[:,0])
