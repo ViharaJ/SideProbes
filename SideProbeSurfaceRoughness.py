@@ -17,10 +17,7 @@ import time
 from scipy import spatial
 from sklearn.neighbors import NearestNeighbors
 
-# '''
-# radius = nonminal file;
-# fit circle
-# '''
+#==================FUNCTIONS======================================
 def longestContour(contours):
     maxIndx = 0
     maxLen = len(contours[0])
@@ -109,12 +106,50 @@ def nearestNeighbour(x1, y1, allX, allY):
     distance = fb.euclidDist(x1, y1, allX, allY)   
     return np.where(distance == np.min(distance))[0]
 
-    
 
+def recreateContour(fullContour):
+    #find starting point of contour
+    minIndices = np.where(fullContour[:,1] == fullContour[:,1].max())[0]
+    minPoints = fullContour[minIndices]
+    minIndx = np.where(minPoints[:,0] == minPoints[:,0].min())[0][0]
+    startingCord = fullContour[minIndices[minIndx]]
+    
+    #array to store ordered points
+    newOrder = [startingCord]
+    
+    #delete starting point from contour array (only pairs values in k)
+    fullContour = np.delete(fullContour, minIndx, axis=0)
+    
+    
+    #Find nearest neighbour, stop when next vertex is dist > 4 away
+    while(len(fullContour) > 1):
+        nbrs = NearestNeighbors(n_neighbors=2, algorithm='ball_tree').fit(fullContour)
+        distance, indices = nbrs.kneighbors([newOrder[-1]])
+        
+        if(distance[0][0] > 15):
+            break
+        else:
+            indices = indices[:,0]
+            newOrder.append(fullContour[indices[0]])
+            fullContour = np.delete(fullContour, indices[0], axis=0)
+
+
+    #get unqiue points, maintain order
+    _, idx = np.unique(newOrder, axis=0,  return_index=True)
+    newOrderIndx = np.sort(idx)
+    
+    finalOrder = []
+    
+    for p in newOrderIndx:
+        finalOrder.append(newOrder[p])
+    
+    return np.array(finalOrder)
+    
+#===============================MAIN======================================
 start = time.time()
 #"C:/Users/v.jayaweera/Pictures/FindingEdgesCutContour/OneFileContours"
 # sourcePath = "C:/Users/v.jayaweera/Documents/Side Probes/Temporary Scripts/CreateRemoval_CSV_Doc/Hantel01_Filtered"
-sourcePath = "C:/Users/v.jayaweera/Documents/Anne/Side Probes/Roughness_Routine_Output_Downskin/Hantel01-C2"
+sourcePath = "C:/Users/v.jayaweera/Documents/Anne/Side Probes/Roughness_Routine_Output_Downskin/Hantel14-C1"
 csvPath = '/Users/v.jayaweera/Documents/Hantel03_Try3_Outline_Filtered-SRAvg.csv'
 
 acceptedFileTypes = ["jpg", "png", "bmp", "tif"]
@@ -154,47 +189,13 @@ else:
                 #plot original contours
                 # plt.plot(k[:,0], k[:,1],'r.-', label="Exact contour")
                 
+                # get recreated contour
+                finalOrder = recreateContour(k)
+                
                 # sig is sigma of Gauss, size is kernel's full length
                 sig = 350
                 size = 319
                 kernel = fb.gauss1D(size, sig)   
-            
-                #find starting point of contour
-                minIndices = np.where(k[:,1] == k[:,1].max())[0]
-                minPoints = k[minIndices]
-                minIndx = np.where(minPoints[:,0] == minPoints[:,0].min())[0][0]
-                startingCord = k[minIndices[minIndx]]
-                
-                #array to store ordered points
-                newOrder = [startingCord]
-                
-                #delete starting point from contour array (only pairs values in k)
-                k = np.delete(k, minIndx, axis=0)
-                
-                
-                #Find nearest neighbour, stop when next vertex is dist > 4 away
-                while(len(k) > 1):
-                    nbrs = NearestNeighbors(n_neighbors=2, algorithm='ball_tree').fit(k)
-                    distance, indices = nbrs.kneighbors([newOrder[-1]])
-                    
-                    if(distance[0][0] > 5):
-                        break
-                    else:
-                        indices = indices[:,0]
-                        newOrder.append(k[indices[0]])
-                        k = np.delete(k, indices[0], axis=0)
- 
-            
-                #get unqiue points, maintain order
-                _, idx = np.unique(newOrder, axis=0,  return_index=True)
-                newOrderIndx = np.sort(idx)
-                
-                finalOrder = []
-                
-                for p in newOrderIndx:
-                    finalOrder.append(newOrder[p])
-                
-                finalOrder = np.array(finalOrder)
           
                 if(len(finalOrder) >= (len(original)/2)*0.95): 
                     x = np.array(finalOrder[:,0])
