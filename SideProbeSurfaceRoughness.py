@@ -1,6 +1,11 @@
 """
+How to use: 
+    1. Enter path to images 
+    2. Enter path to save csv file
+    3. Ensure that the image names have the scale in the second position. Everything should be seperated by '-'
 
-Find nearest neighbour, then keep unqiue points
+
+Contour recreating method: Find nearest neighbour, then keep unqiue points
 """
 
 import numpy as np
@@ -16,6 +21,10 @@ from sklearn.neighbors import NearestNeighbors
 
 #==================FUNCTIONS======================================
 def longestContour(contours):
+    """
+    contours: contours returned by cv2
+    returns: longest contour input list
+    """
     maxIndx = 0
     maxLen = len(contours[0])
     
@@ -27,84 +36,20 @@ def longestContour(contours):
     return contours[maxIndx]
 
 
-def checkFeature(image, row, col):
-    image = np.array(image)
-    
-    loops = 5
-    #check back
-    back = col
-    while back > 0 and loops >= 0:        
-        prevCol = img[:, col-1]        
-        whitePx = np.where(prevCol==255)[0]
-        
-        if len(whitePx) > 1:
-            return True
-        back = back - 1
-        loops = loops - 1
-        
-    #check forward
-    loops = 5
-    forward = col
-    while forward < image.shape[1] and loops >= 0:        
-        prevCol = img[:, col+1]        
-        whitePx = np.where(prevCol==255)[0]
-        
-        if len(whitePx) > 1:
-            return True
-        forward = forward + 1
-        loops = loops - 1
-        
-    return False
-
-def keepImage(image, contour, filename):
-    """
-    img: img opencv array
-    """
-    contour = np.array(contour)
-    ratio = image.shape[0]/image.shape[1]
-    fig, axs = plt.subplots(2, 1)
-    fig.suptitle(filename)
-    axs[0].imshow(image)
-    axs[1].invert_yaxis()
-    axs[1].plot(contour[:,0], contour[:,1], 'b.-')
-    x_left, x_right = plt.gca().get_xlim()
-    y_low, y_high = plt.gca().get_ylim()
-    fig.gca().set_aspect(abs((x_right-x_left)/(y_low-y_high))*ratio)
-    plt.show()
-    
-    inp = input("Keep (1 or SPACE) or Remove(2)?")
-   
-    if(inp == '' or inp == '1'):
-        return True
-    else:
-        return False
-    
-def makeComparisonPlot(image, x,y, bx,by):
-    #Reset plots to default figure size
-    plt.rcParams["figure.figsize"] = plt.rcParamsDefault["figure.figsize"]
-    plt.gca().invert_yaxis()
-    ratio = image.shape[0]/image.shape[1]
-    
-    #plot
-    plt.plot(x,y,'b.-',label='Exact contour')
-    plt.plot(bx, by, 'r.-', label='Baseline')
-    
-    #get x and y limits and resize axes
-    x_left, x_right = plt.gca().get_xlim()
-    y_low, y_high = plt.gca().get_ylim()
-    plt.gca().set_aspect(abs((x_right-x_left)/(y_low-y_high))*ratio)
-    plt.legend()
-    plt.title(path)
-    plt.show()
-
-
-
 def nearestNeighbour(x1, y1, allX, allY):
+    """
+    Find the nearest point to (x1,y1) from arrays
+    allX and allY.
+    """
     distance = fb.euclidDist(x1, y1, allX, allY)   
     return np.where(distance == np.min(distance))[0]
 
 
 def recreateContour(fullContour):
+    """
+    fullContour: contour of shape (n,2)
+    returns: new contour of shape (n,2) 
+    """
     #find starting point of contour
     minIndices = np.where(fullContour[:,1] == fullContour[:,1].max())[0]
     minPoints = fullContour[minIndices]
@@ -118,12 +63,12 @@ def recreateContour(fullContour):
     fullContour = np.delete(fullContour, minIndx, axis=0)
     
     
-    #Find nearest neighbour, stop when next vertex is dist > 4 away
+    #Find nearest neighbour, stop when next vertex is dist > 15 pixels away
     while(len(fullContour) > 1):
         nbrs = NearestNeighbors(n_neighbors=2, algorithm='ball_tree').fit(fullContour)
         distance, indices = nbrs.kneighbors([newOrder[-1]])
         
-        if(distance[0][0] > 15):
+        if(distance[0][0] > 15): # if next verteix is 15 pixels away, brek
             break
         else:
             indices = indices[:,0]
@@ -182,7 +127,8 @@ else:
                 
                 #turn contour to shape (n,2)
                 k = np.squeeze(k, axis=1)
-                original = k 
+                original = k
+                
                 #plot original contours
                 # plt.plot(k[:,0], k[:,1],'r.-', label="Exact contour")
                 
@@ -194,25 +140,27 @@ else:
                 size = 319
                 kernel = fb.gauss1D(size, sig)   
           
+                # recreated contour matches length criteria
                 if(len(finalOrder) >= (len(original)/2)*0.95): 
                     x = np.array(finalOrder[:,0])
                     y = np.array(finalOrder[:,1])
                     
-                    #plot retrieved contour
+                    # plot recreated contour
                     ratio = img.shape[0]/img.shape[1]
                     plt.title(path)     
                     plt.plot(x, y, 'g.-', label="New contour")
                     
-                    #get baseline
+                    # get baseline
                     xscipy = signal.convolve(x, kernel, mode='valid')
                     yscipy = signal.convolve(y, kernel, mode='valid')
                     
                     dx = np.diff(xscipy)
                     dy = np.diff(yscipy)
                     
-                    #TODO REMOVE LATER;TESTING
+                    # TODO REMOVE LATER;TESTING
                     print("Array lengths", len(x), len(xscipy))
                     
+                    # plot baseline and show
                     plt.plot(xscipy, yscipy, 'm.-', label="baseline")
                     x_left, x_right = plt.gca().get_xlim()
                     y_low, y_high = plt.gca().get_ylim()
@@ -220,12 +168,15 @@ else:
                     plt.legend()
                     plt.show()
                     
+                    # turn contour to shapeply object
                     polyGon = shapely.geometry.LineString(finalOrder)
                     
+                    # iteratate over baseline
                     for j in range(1,len(dx)):
+                        # create normal line from baseline
                         xs, ys = fb.createNormalLine(xscipy[j], yscipy[j], dx[j], dy[j])
-                       
                         
+                        # turn normal line to shapely object
                         stack = np.stack((xs,ys), axis=-1)
                         line = shapely.geometry.LineString(stack)
                         
