@@ -1,20 +1,17 @@
 """
-kNN2: Find nearest neighbour, then keep unqiue points
+
+Find nearest neighbour, then keep unqiue points
 """
 
 import numpy as np
 import shapely
 import matplotlib.pyplot as plt
 from scipy import signal
-import scipy
 import cv2
 import Module.Functions as fb
 import os 
 import sys
-import math
 import time
-
-from scipy import spatial
 from sklearn.neighbors import NearestNeighbors
 
 #==================FUNCTIONS======================================
@@ -232,7 +229,7 @@ else:
                         stack = np.stack((xs,ys), axis=-1)
                         line = shapely.geometry.LineString(stack)
                         
-                        #TODO remove this from main CODE
+                        
                         if(polyGon.intersects(line)):
                             #intersection geometry
                             interPoints = polyGon.intersection(line)
