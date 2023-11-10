@@ -1,7 +1,7 @@
-# -*- coding: utf-8 -*-
 """
 kNN2: Find nearest neighbour, then keep unqiue points
 """
+
 import numpy as np
 import shapely
 import matplotlib.pyplot as plt
