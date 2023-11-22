@@ -91,7 +91,8 @@ def recreateContour(fullContour):
 start = time.time()
 #"C:/Users/v.jayaweera/Pictures/FindingEdgesCutContour/OneFileContours"
 # sourcePath = "C:/Users/v.jayaweera/Documents/Side Probes/Temporary Scripts/CreateRemoval_CSV_Doc/Hantel01_Filtered"
-sourcePath = "C:/Users/v.jayaweera/Documents/Anne/Side Probes/Roughness_Routine_Output_Downskin/Hantel16-C2"
+# sourcePath = "C:/Users/v.jayaweera/Documents/Anne/Side Probes/Roughness_Routine_Output_Downskin/Hantel16-C2"
+sourcePath = "C:\\Users\\v.jayaweera\\Pictures\\Probe01ROI2"
 csvPath = '/Users/v.jayaweera/Documents/Hantel03_Try3_Outline_Filtered-SRAvg.csv'
 
 acceptedFileTypes = ["jpg", "png", "bmp", "tif"]
