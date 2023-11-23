@@ -1,10 +1,28 @@
 """
 How to use: 
-    1. Enter path to images 
-    2. Enter path to save csv file
-    3. Ensure that the image names have the scale in the second position. Everything should be seperated by '-'
+    1. Change sourcePath
+    2. Change csvOutputPath
+    3. Ensure that the image names have the scale in the second position.
+        Everything should be seperated by '-'
+
+
+How it works:
+    1. Find the longest contour in image
+    2. Finds the bottom leftmost pixel in the image
+    3. Recreate contour such that duplicate points are removed
+        Currently, if the next closes vertex to the current point is more than
+        5 pixels away, we stop recreating the contour and break out of the routine
+        If the new contour is about 95% the contour (unique vertices only), compute the roughness
 
 Contour recreating method: Find nearest neighbour, then keep unqiue points
+
+
+
+!!!Background Info!!!:
+    
+A CONTOUR is closed set of points. 
+
+So, the contour of a straight line would include duplicate points. 
 """
 
 import numpy as np
@@ -12,7 +30,7 @@ import shapely
 import matplotlib.pyplot as plt
 from scipy import signal
 import cv2
-import Module.Functions as fb
+import Module.Functions as fb # functions from other module with a collection of functions
 import os 
 import sys
 import time
@@ -89,7 +107,7 @@ def recreateContour(fullContour):
 #===============================MAIN======================================
 start = time.time()
 sourcePath = "C:\\Users\\v.jayaweera\\Pictures\\Probe01ROI2"
-csvPath = '/Users/v.jayaweera/Documents/Hantel03_Try3_Outline_Filtered-SRAvg.csv'
+csvOutputPath = '/Users/v.jayaweera/Documents/Hantel03_Try3_Outline_Filtered-SRAvg.csv'
 
 acceptedFileTypes = ["jpg", "png", "bmp", "tif"]
 dirPictures = os.listdir(sourcePath)
@@ -108,11 +126,12 @@ else:
     for path in dirPictures:
         if( '.' in path and path.split('.')[-1].lower() in acceptedFileTypes):
             
+            # get scale from image
             if scale is None:
                 scale = float(path.split("-")[1])
-                
-            distanceE = []
-            saveIndex = []
+            
+            # Ra, image used
+            distanceE, saveIndex = [], []
             
             # Extract contour
             img = cv2.imread(sourcePath + '/' + path, cv2.IMREAD_GRAYSCALE)
@@ -122,7 +141,7 @@ else:
                 #Get main contour of interest, ignore pores
                 k = longestContour(cont)
                 
-                #turn contour to shape (n,2)
+                #turn contour to array shape (n,2)
                 k = np.squeeze(k, axis=1)
                 original = k
                 
@@ -133,6 +152,7 @@ else:
                 finalOrder = recreateContour(k)
                 
                 # sig is sigma of Gauss, size is kernel's full length
+                # create Gauss kernel
                 sig = 350
                 size = 319
                 kernel = fb.gauss1D(size, sig)   
@@ -165,12 +185,12 @@ else:
                     plt.legend()
                     plt.show()
                     
-                    # turn contour to shapeply object
+                    # turn contour to shapely object
                     polyGon = shapely.geometry.LineString(finalOrder)
                     
-                    # iteratate over baseline
+                    # iteratate over the baseline
                     for j in range(1,len(dx)):
-                        # create normal line from baseline
+                        # create normal line from point on the baseline
                         xs, ys = fb.createNormalLine(xscipy[j], yscipy[j], dx[j], dy[j])
                         
                         # turn normal line to shapely object
@@ -178,7 +198,7 @@ else:
                         line = shapely.geometry.LineString(stack)
                         
                         
-                        if(polyGon.intersects(line)):
+                        if (polyGon.intersects(line)):
                             #intersection geometry
                             interPoints = polyGon.intersection(line)
                             
