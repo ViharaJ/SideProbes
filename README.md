@@ -37,7 +37,12 @@ Process:
 1. Save each image to the appropriate directory 
 
 ### 3. Run Python Script:
-
+1. Change the following variables:
+   ```
+       sourcePath = ""
+       csvPath = ""
+   ```
+2. Run script
 **How it works:**
 
 1.	Find the longest contour in image
