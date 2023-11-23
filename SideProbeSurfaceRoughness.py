@@ -36,6 +36,11 @@ The sigma and kernel length for the Gauss kernel were found using a script. The
 goal of this script was to create a baseline which closely matched the STL file of the 
 speciment that was scanned.
 
+The images are assumed to look similar to the top half of the outline of a circle. 
+This is why the script searches for the lowest leftmost starting index. If your 
+images are not suitable, you will have to change the code so that it finds the 
+right starting point. 
+
 """
 
 import numpy as np
