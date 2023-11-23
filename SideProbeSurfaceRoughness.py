@@ -4,7 +4,6 @@ How to use:
     2. Enter path to save csv file
     3. Ensure that the image names have the scale in the second position. Everything should be seperated by '-'
 
-
 Contour recreating method: Find nearest neighbour, then keep unqiue points
 """
 
@@ -89,9 +88,6 @@ def recreateContour(fullContour):
     
 #===============================MAIN======================================
 start = time.time()
-#"C:/Users/v.jayaweera/Pictures/FindingEdgesCutContour/OneFileContours"
-# sourcePath = "C:/Users/v.jayaweera/Documents/Side Probes/Temporary Scripts/CreateRemoval_CSV_Doc/Hantel01_Filtered"
-# sourcePath = "C:/Users/v.jayaweera/Documents/Anne/Side Probes/Roughness_Routine_Output_Downskin/Hantel16-C2"
 sourcePath = "C:\\Users\\v.jayaweera\\Pictures\\Probe01ROI2"
 csvPath = '/Users/v.jayaweera/Documents/Hantel03_Try3_Outline_Filtered-SRAvg.csv'
 
