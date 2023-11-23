@@ -1,12 +1,36 @@
+/*
+How to use: 
+	1. Save this macro to the macros folder of ImageJ/Fiji
+	2. Chnage sourcePath to directory with subfolders of images
+	3. Change subFolders_ofInterest to folders you want to process inside of sourcePath
+	4. Change savePath to the location where the processed images will be saved. 
+	
+How it works: 
+5 subfolders are created inside the directory specificed in savePath. 
+They are for the Inner Surface and the 4 splices of the Outer skin: Upskin, Sideskin (left), Sideskin (right) and Downskin
+
+Process: 
+	1. Binarizes the image
+	2. Finds the contour
+	3. Split the inner and outer skins into two images
+	4. Removes any powder particles (non-connected components)
+	5. Splice the outer skin into 4 components. New images are created
+	6. Save each image to the appropriate directory
+	
+NOTE: Don't remove setBatchMode() because it batch mode increases the runtime of this macro!! For more info check the documentation:
+https://imagej.nih.gov/ij/developer/macro/functions.html#substring
+*/
+
 setBatchMode(true);
 start = getTime();
+
 sourcePath = "U:\\ROI\\Probes09-12 ROI";
 subFolders_ofInterest = newArray("Probe09", "Probe10", "Probe11", "Probe12");
-
 savePath = "C:\\Users\\v.jayaweera\\Pictures";
+
 print(subFolders_ofInterest.length);
 
-for(i = 0; i < subFolders_ofInterest.length; i++) //here i starts at 1 because you indicated that is the first folder of interest, but this could be any number
+for(i = 0; i < subFolders_ofInterest.length; i++) 
 {
     openPath = sourcePath + "\\" + subFolders_ofInterest[i];
     
@@ -28,7 +52,7 @@ for(i = 0; i < subFolders_ofInterest.length; i++) //here i starts at 1 because y
 	File.makeDirectory(outerS3);
 	File.makeDirectory(outerS4);
 		
-    for(count = 0; count < files.length; count++) //here count should start at 0 in order to index through the folder properly (otherwise it won't start at the first file in the folder)
+    for(count = 0; count < files.length; count++) //here count should start at 0 in order to index through the folder properly
     {
     	open(openPath + File.separator + files[count]);
     	fullfileName = getTitle();
