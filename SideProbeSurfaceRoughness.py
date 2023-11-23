@@ -1,7 +1,7 @@
 """
 How to use: 
     1. Change sourcePath
-    2. Change csvOutputPath
+    2. Change csvOutputDir
     3. Ensure that the image names have the scale in the second position.
         Everything should be seperated by '-'
 
@@ -30,7 +30,9 @@ Contour recreating method: Find nearest neighbour, then keep unqiue points
     
 A CONTOUR is closed set of points. 
 So, the contour of a straight line would include duplicate points. This is why 
-we need to recreate the contour to include only unique points. 
+we need to recreate the contour to include only unique points. Admittedly, this algorithm 
+probably recreates an imperfect contour for specimens with re-entrant features so there is 
+room for improvement.
 
 The sigma and kernel length for the Gauss kernel were found using a script. The
 goal of this script was to create a baseline which closely matched the STL file of the 
@@ -46,8 +48,8 @@ import cv2
 import Module.Functions as fb # functions from other module with a collection of functions
 import os 
 import sys
-import time
 from sklearn.neighbors import NearestNeighbors
+import pandas as pd
 
 #==================FUNCTIONS======================================
 def longestContour(contours):
@@ -117,120 +119,137 @@ def recreateContour(fullContour):
         finalOrder.append(newOrder[p])
     
     return np.array(finalOrder)
+
+    
+def saveToExcel(porosity_data, names, rootDir, filename="Porosity"):
+    df = pd.DataFrame(data=list(porosity_data), columns=['Porosity'], index=names)
+    df.to_excel(os.path.join(rootDir, filename + ".xlsx")) 
+    
+
+def calculateSR(img, scale, s, k):
+    '''
+    img: image to be processed
+    s: sigma for gaussl kernel
+    k: full kernel length
+    returns: Surface roughness or -1 if failed to find a value
+    '''
+    # Ra
+    distanceE = []
+    #extract contour
+    cont, hier = cv2.findContours(img, cv2.RETR_LIST , cv2.CHAIN_APPROX_NONE)
+    
+    if cont is None:
+        return -1
+    
+    #Get main contour of interest, ignore pores
+    k = longestContour(cont)
+    
+    #turn contour to array shape (n,2)
+    k = np.squeeze(k, axis=1)
+    original = k
+    
+    # get recreated contour
+    finalOrder = recreateContour(k)
+    
+    # create Gauss kernel
+    kernel = fb.gauss1D(s, k)   
+  
+    # recreated contour matches length criteria
+    if(len(finalOrder) >= (len(original)/2)*0.95): 
+        x = np.array(finalOrder[:,0])
+        y = np.array(finalOrder[:,1])
+        
+        # plot recreated contour
+        ratio = img.shape[0]/img.shape[1]
+        plt.title(path)     
+        plt.plot(x, y, 'g.-', label="New contour")
+        
+        # get baseline
+        xscipy = signal.convolve(x, kernel, mode='valid')
+        yscipy = signal.convolve(y, kernel, mode='valid')
+        
+        dx = np.diff(xscipy)
+        dy = np.diff(yscipy)
+        
+        # TODO REMOVE LATER;TESTING
+        print("Array lengths", len(x), len(xscipy))
+        
+        # plot baseline and show
+        plt.plot(xscipy, yscipy, 'm.-', label="baseline")
+        x_left, x_right = plt.gca().get_xlim()
+        y_low, y_high = plt.gca().get_ylim()
+        plt.gca().set_aspect(abs((x_right-x_left)/(y_low-y_high))*ratio)
+        plt.legend()
+        plt.show()
+        
+        # turn contour to shapely object
+        polyGon = shapely.geometry.LineString(finalOrder)
+        
+        # iteratate over the baseline
+        for j in range(1,len(dx)):
+            # create normal line from point on the baseline
+            xs, ys = fb.createNormalLine(xscipy[j], yscipy[j], dx[j], dy[j])
+            
+            # turn normal line to shapely object
+            stack = np.stack((xs,ys), axis=-1)
+            line = shapely.geometry.LineString(stack)
+            
+            
+            if (polyGon.intersects(line)):
+                #intersection geometry
+                interPoints = polyGon.intersection(line)
+                
+                #intersection point
+                mx, my = fb.proccessIntersectionPoint(interPoints, xscipy[j], yscipy[j])
+                
+                euD = fb.euclidDist(xscipy[j], yscipy[j], mx, my)
+                distanceE.append(euD)
+    
+    return np.average(distanceE)
     
 #===============================MAIN======================================
-start = time.time()
+rootDir = ""
+subFolders_Of_Interest = []
 sourcePath = "C:\\Users\\v.jayaweera\\Pictures\\Probe01ROI2"
-csvOutputPath = '/Users/v.jayaweera/Documents/Hantel03_Try3_Outline_Filtered-SRAvg.csv'
+csvOutputDir = '/Users/v.jayaweera/Documents'
 
 acceptedFileTypes = ["jpg", "png", "bmp", "tif"]
 dirPictures = os.listdir(sourcePath)
 imageID = []
 scale = None
 averageSR = []
+names = []
 
 
+for folder in os.listdir(subFolders_Of_Interest):
+    f_path = os.path.join(rootDir, folder)
+    
+    # check if it's a folder and a folder we're processing
+    if os.path.isdir(f_path) and folder in subFolders_Of_Interest:        
+        names.append(folder)
+        
+        counter = 0
+        for image_name in os.listdir(f_path):
+            if( '.' in image_name and image_name.split('.')[-1].lower()
+               in acceptedFileTypes):
+                img = cv2.imread(os.path.join(f_path, image_name))
+                
+                # get scale from image
+                if scale is None:
+                    scale = float(image_name.split("-")[1])
+                
+                
+                SR = calculateSR(img, scale, 350, 319)
+                
+                if SR != -1:
+                    averageSR.append(SR)                            
+                    #Number of images used for final calculations
+                    print(counter, "/", len(dirPictures))
+    
 
-if(len(dirPictures)  <= 0):
-    print('The specified folder is empty!')
-    sys.exit()
+saveToExcel(averageSR, names, rootDir)
 
-else:
-    counter = 0
-    for path in dirPictures:
-        if( '.' in path and path.split('.')[-1].lower() in acceptedFileTypes):
-            
-            # get scale from image
-            if scale is None:
-                scale = float(path.split("-")[1])
-            
-            # Ra, image used
-            distanceE, saveIndex = [], []
-            
-            # Extract contour
-            img = cv2.imread(sourcePath + '/' + path, cv2.IMREAD_GRAYSCALE)
-            cont, hier = cv2.findContours(img, cv2.RETR_LIST , cv2.CHAIN_APPROX_NONE)
 
-            if (cont):
-                #Get main contour of interest, ignore pores
-                k = longestContour(cont)
-                
-                #turn contour to array shape (n,2)
-                k = np.squeeze(k, axis=1)
-                original = k
-                
-                #plot original contours
-                # plt.plot(k[:,0], k[:,1],'r.-', label="Exact contour")
-                
-                # get recreated contour
-                finalOrder = recreateContour(k)
-                
-                # sig is sigma of Gauss, size is kernel's full length
-                # create Gauss kernel
-                sig = 350
-                size = 319
-                kernel = fb.gauss1D(size, sig)   
-          
-                # recreated contour matches length criteria
-                if(len(finalOrder) >= (len(original)/2)*0.95): 
-                    x = np.array(finalOrder[:,0])
-                    y = np.array(finalOrder[:,1])
-                    
-                    # plot recreated contour
-                    ratio = img.shape[0]/img.shape[1]
-                    plt.title(path)     
-                    plt.plot(x, y, 'g.-', label="New contour")
-                    
-                    # get baseline
-                    xscipy = signal.convolve(x, kernel, mode='valid')
-                    yscipy = signal.convolve(y, kernel, mode='valid')
-                    
-                    dx = np.diff(xscipy)
-                    dy = np.diff(yscipy)
-                    
-                    # TODO REMOVE LATER;TESTING
-                    print("Array lengths", len(x), len(xscipy))
-                    
-                    # plot baseline and show
-                    plt.plot(xscipy, yscipy, 'm.-', label="baseline")
-                    x_left, x_right = plt.gca().get_xlim()
-                    y_low, y_high = plt.gca().get_ylim()
-                    plt.gca().set_aspect(abs((x_right-x_left)/(y_low-y_high))*ratio)
-                    plt.legend()
-                    plt.show()
-                    
-                    # turn contour to shapely object
-                    polyGon = shapely.geometry.LineString(finalOrder)
-                    
-                    # iteratate over the baseline
-                    for j in range(1,len(dx)):
-                        # create normal line from point on the baseline
-                        xs, ys = fb.createNormalLine(xscipy[j], yscipy[j], dx[j], dy[j])
-                        
-                        # turn normal line to shapely object
-                        stack = np.stack((xs,ys), axis=-1)
-                        line = shapely.geometry.LineString(stack)
-                        
-                        
-                        if (polyGon.intersects(line)):
-                            #intersection geometry
-                            interPoints = polyGon.intersection(line)
-                            
-                            #intersection point
-                            mx, my = fb.proccessIntersectionPoint(interPoints, xscipy[j], yscipy[j])
-                            
-                            euD = fb.euclidDist(xscipy[j], yscipy[j], mx, my)
-                            distanceE.append(euD)
-                            saveIndex.append(j)
-                    
-                    if len(distanceE) > 0:
-                        print(np.average(distanceE))
-                        averageSR.append(np.average(distanceE))
-                        counter = counter + 1
-            print(counter, "/", len(dirPictures))
-                
-                
-if len(averageSR) > 0:
-    print("Average Sa: ", np.average(averageSR)*scale*1000)
-    sys.exit()
+        
+
 
