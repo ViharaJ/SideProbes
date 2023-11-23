@@ -4,6 +4,7 @@ How to use:
 	2. Chnage sourcePath to directory with subfolders of images
 	3. Change subFolders_ofInterest to folders you want to process inside of sourcePath
 	4. Change savePath to the location where the processed images will be saved. 
+		- naming convention: <Probe>-<scale>-<slice>-Outline.tif
 	
 How it works: 
 5 subfolders are created inside the directory specificed in savePath. 
