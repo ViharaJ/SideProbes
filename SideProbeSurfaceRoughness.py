@@ -8,11 +8,19 @@ How to use:
 
 How it works:
     1. Find the longest contour in image
-    2. Finds the bottom leftmost pixel in the image
+    2. Finds the lowest leftmost pixel in the image
     3. Recreate contour such that duplicate points are removed
         Currently, if the next closes vertex to the current point is more than
         5 pixels away, we stop recreating the contour and break out of the routine
         If the new contour is about 95% the contour (unique vertices only), compute the roughness
+            -Note: These values 5 pixels and 95% were chosen arbitrarily
+            
+    4. Convert the exact contour to a Shapely object. For more info on Shapely
+        see here: https://shapely.readthedocs.io/en/stable/geometry.html
+    5. Iterate over the baseline
+    6. Turn the normal line at each point to another Shapely object and find the intersection point
+    7. Compute roughness
+
 
 Contour recreating method: Find nearest neighbour, then keep unqiue points
 
@@ -21,8 +29,12 @@ Contour recreating method: Find nearest neighbour, then keep unqiue points
 !!!Background Info!!!:
     
 A CONTOUR is closed set of points. 
+So, the contour of a straight line would include duplicate points. This is why 
+we need to recreate the contour to include only unique points. 
 
-So, the contour of a straight line would include duplicate points. 
+The sigma and kernel length for the Gauss kernel were found using a script. The
+goal of this script was to reference
+
 """
 
 import numpy as np
@@ -64,7 +76,8 @@ def nearestNeighbour(x1, y1, allX, allY):
 
 def recreateContour(fullContour):
     """
-    fullContour: contour of shape (n,2)
+    fullContour: contour of shape (n,2), this should be the contour returned from 
+        cv2.findContours
     returns: new contour of shape (n,2) 
     """
     #find starting point of contour
