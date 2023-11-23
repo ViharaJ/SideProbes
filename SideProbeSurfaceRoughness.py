@@ -33,7 +33,8 @@ So, the contour of a straight line would include duplicate points. This is why
 we need to recreate the contour to include only unique points. 
 
 The sigma and kernel length for the Gauss kernel were found using a script. The
-goal of this script was to reference
+goal of this script was to create a baseline which closely matched the STL file of the 
+speciment that was scanned.
 
 """
 
