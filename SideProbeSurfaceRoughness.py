@@ -241,7 +241,7 @@ names = []
 for folder in os.listdir(subFolders_Of_Interest):
     f_path = os.path.join(rootDir, folder)
     
-    # check if it's a folder and a folder we're processing
+    # check if it's both a folder and a folder we're processing
     if os.path.isdir(f_path) and folder in subFolders_Of_Interest:        
         names.append(folder)
         
