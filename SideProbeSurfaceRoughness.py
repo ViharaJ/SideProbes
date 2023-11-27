@@ -1,4 +1,8 @@
 """
+This script calculates the surface roughness using a Gaussian kernel. It processes 
+a folder of images and returns a single average value for the stack. The input, 
+'sourcePath', is the directory which contains folders of images.
+
 How to use: 
     1. Change sourcePath
     2. Change csvOutputDir
@@ -36,7 +40,12 @@ room for improvement.
 
 The sigma and kernel length for the Gauss kernel were found using a script. The
 goal of this script was to create a baseline which closely matched the STL file of the 
-speciment that was scanned.
+speciment that was scanned. The code can be found here: https://github.com/ViharaJ/Find_Best_Kernel
+
+The images are assumed to look similar to the top half of the outline of a circle. 
+This is why the script searches for the lowest leftmost starting index. If your 
+images are not suitable, you will have to change the code so that it finds the 
+right starting point. 
 
 """
 
