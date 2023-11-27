@@ -34,7 +34,7 @@ we need to recreate the contour to include only unique points.
 
 The sigma and kernel length for the Gauss kernel were found using a script. The
 goal of this script was to create a baseline which closely matched the STL file of the 
-speciment that was scanned.
+speciment that was scanned. The code can be found here: https://github.com/ViharaJ/Find_Best_Kernel
 
 The images are assumed to look similar to the top half of the outline of a circle. 
 This is why the script searches for the lowest leftmost starting index. If your 
