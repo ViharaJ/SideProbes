@@ -170,7 +170,7 @@ def calculateSR(img, scale, s, k):
         
         # plot recreated contour
         ratio = img.shape[0]/img.shape[1]
-        plt.title(path)     
+        # plt.title(path)     
         plt.plot(x, y, 'g.-', label="New contour")
         
         # get baseline
