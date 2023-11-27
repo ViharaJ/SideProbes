@@ -1,4 +1,8 @@
 """
+This script calculates the surface roughness using a Gaussian kernel. It processes 
+a folder of images and returns a single average value for the stack. The input, 
+'sourcePath', is the directory which contains folders of images.
+
 How to use: 
     1. Change sourcePath
     2. Change csvOutputPath
