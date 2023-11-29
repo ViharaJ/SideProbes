@@ -219,9 +219,9 @@ def calculateSR(img, scale, sigma, kernel_len):
     return np.average(distanceE)
     
 #===============================MAIN======================================
-mainDir = "C:\\Users\\v.jayaweera\\Pictures\\Probe01ROI2"
-subFolders_Of_Interest = ["Outer_Surface_Downskin"]
-csvOutputDir = "C:\\Users\\v.jayaweera\\Pictures\\Probe01ROI2"
+mainDir = "Z:\\Projekte\\42029-FOR5250\\Vihara\\Test-side probes\\processed images"
+subFolders_Of_Interest =["side probe 3"]
+csvOutputDir = "Z:\\Projekte\\42029-FOR5250\\Vihara\\Test-side probes\\Documents"
 
 acceptedFileTypes = ["jpg", "png", "bmp", "tif"]
 
@@ -235,6 +235,7 @@ for folder in os.listdir(mainDir):
     f_path = os.path.join(mainDir, folder)
     
     # check if it's both a folder and a folder we're processing
+    SR_of_folder = []
     if os.path.isdir(f_path) and folder in subFolders_Of_Interest:       
         names.append(folder)
         
@@ -252,11 +253,14 @@ for folder in os.listdir(mainDir):
                 SR = calculateSR(img, scale, 350, 319)
                 
                 if SR != -1:
-                    averageSR.append(SR)                            
+                    SR_of_folder.append(SR)                            
                     #Number of images used for final calculations
                     print(counter, "/", len(os.listdir(f_path)))
     
-
+    
+        
+        averageSR.append(np.average(SR_of_folder))
+    
 saveToExcel(averageSR, names, csvOutputDir)
 
 
