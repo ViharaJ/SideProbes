@@ -43,10 +43,10 @@ def getROI(img, scale):
      return cropCoord
     
 
-def gauss1D(size, sigma):
+def gauss1D(sigma, size):
     '''
-    size: total length of kernel, must be odd,
     sigma: sigma of gaussian,
+    size: total length of kernel, must be odd,
     returns: size length array of normalized gaussian kernel
     '''
     size = size+1 if size%2 == 0 else size

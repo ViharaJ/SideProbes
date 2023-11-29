@@ -137,7 +137,7 @@ def saveToExcel(porosity_data, names, rootDir, filename="Porosity"):
     df.to_excel(os.path.join(rootDir, filename + ".xlsx")) 
     
 
-def calculateSR(img, scale, s, k):
+def calculateSR(img, scale, sigma, kernel_len):
     '''
     img: image to be processed
     s: sigma for gaussl kernel
@@ -163,7 +163,7 @@ def calculateSR(img, scale, s, k):
     finalOrder = recreateContour(k)
     
     # create Gauss kernel
-    kernel = fb.gauss1D(s, k)   
+    kernel = fb.gauss1D(sigma, kernel_len)   
   
     # recreated contour matches length criteria
     if(len(finalOrder) >= (len(original)/2)*0.95): 
