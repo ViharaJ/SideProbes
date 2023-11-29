@@ -2,22 +2,21 @@
 This script calculates the surface roughness using a Gaussian kernel. It processes 
 a folder of images and returns a single average value for the stack. The input, 
 'rootDir', is the directory which contains folders of images.
-
+ 
 The folders specified in subFolders_Of_Interest will be processed, a single surface
 roughness value will be returned for each folder. Upon completion, the results 
-the results for each folder will be saved an excel file and written to 'rootDir'
-
-
-
-
-How to use: 
+for each folder will be saved as an excel file and written to 'rootDir'
+ 
+ 
+ 
+How to use (variables you need change):
     1. Change sourcePath
+    2. Update subFolders_Of_Interest
     2. Change csvOutputDir
     3. Ensure that the image names have the scale in the second position.
         Everything should be seperated by '-'
-
-
-
+ 
+ 
 How it works:
     1. Find the longest contour in image
     2. Finds the lowest leftmost pixel in the image
@@ -26,34 +25,29 @@ How it works:
         5 pixels away, we stop recreating the contour and break out of the routine
         If the new contour is about 95% the contour (unique vertices only), compute the roughness
             -Note: These values 5 pixels and 95% were chosen arbitrarily
-            
     4. Convert the exact contour to a Shapely object. For more info on Shapely
         see here: https://shapely.readthedocs.io/en/stable/geometry.html
-    5. Iterate over the baseline
-    6. Turn the normal line at each point to another Shapely object and find the intersection point
+    5. From the contour the algorithm recreates the baseline
+    6. Iterate over the baseline (slop, orthogonal, euclidian distance), Turn 
+    the normal line at each point to another Shapely object and find the intersection point
     7. Compute roughness
-
-
-Contour recreating method: Find nearest neighbour, then keep unqiue points
-
-
-
+ 
+ 
 !!!Background Info!!!:
-    
 A CONTOUR is closed set of points. 
 So, the contour of a straight line would include duplicate points. This is why 
 we need to recreate the contour to include only unique points. Admittedly, this algorithm 
 probably recreates an imperfect contour for specimens with re-entrant features so there is 
 room for improvement.
-
+ 
 The sigma and kernel length for the Gauss kernel were found using a script. The
 goal of this script was to create a baseline which closely matched the STL file of the 
 speciment that was scanned. The code can be found here: https://github.com/ViharaJ/Find_Best_Kernel
-
+ 
 The images are assumed to look similar to the top half of the outline of a circle. 
 This is why the script searches for the lowest leftmost starting index. If your 
 images are not suitable, you will have to change the code so that it finds the 
-right starting point. 
+right starting point.
 
 """
 
