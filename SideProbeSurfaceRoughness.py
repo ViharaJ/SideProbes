@@ -1,18 +1,18 @@
 """
 This script calculates the surface roughness using a Gaussian kernel. It processes 
 a folder of images and returns a single average value for the stack. The input, 
-'rootDir', is the directory which contains folders of images.
+'mainDir', is the directory which contains folders of images.
  
 The folders specified in subFolders_Of_Interest will be processed, a single surface
 roughness value will be returned for each folder. Upon completion, the results 
-for each folder will be saved as an excel file and written to 'rootDir'
+for each folder will be saved as an excel file
  
  
  
 How to use (variables you need change):
-    1. Change sourcePath
-    2. Update subFolders_Of_Interest
-    2. Change csvOutputDir
+    1. Change variable mainDir to directory with folders of iamges
+    2. Update subFolders_Of_Interest to include folders you want to process
+    2. Change csvOutputDir to directory where Porosity.xlsx will be saved
     3. Ensure that the image names have the scale in the second position.
         Everything should be seperated by '-'
  
@@ -219,23 +219,23 @@ def calculateSR(img, scale, s, k):
     return np.average(distanceE)
     
 #===============================MAIN======================================
-subFolders_Of_Interest = ["side probe 3"]
-sourcePath = "Z:\\Projekte\\42029-FOR5250\\Vihara\\Test-side probes\\processed images"
-csvOutputDir = "Z:\\Projekte\\42029-FOR5250\\Vihara\\Test-side probes\\Documents"
+mainDir = "C:\\Users\\v.jayaweera\\Pictures\\Probe01ROI2"
+subFolders_Of_Interest = ["Outer_Surface_Downskin"]
+csvOutputDir = "C:\\Users\\v.jayaweera\\Pictures\\Probe01ROI2"
 
 acceptedFileTypes = ["jpg", "png", "bmp", "tif"]
-dirPictures = os.listdir(sourcePath)
-imageID = []
+
 scale = None
 averageSR = []
 names = []
 
 
-for folder in os.listdir(sourcePath):
-    f_path = os.path.join(sourcePath, folder)
+for folder in os.listdir(mainDir):
+    # get full folder path
+    f_path = os.path.join(mainDir, folder)
     
     # check if it's both a folder and a folder we're processing
-    if os.path.isdir(f_path) and folder in subFolders_Of_Interest:        
+    if os.path.isdir(f_path) and folder in subFolders_Of_Interest:       
         names.append(folder)
         
         counter = 0
@@ -254,10 +254,10 @@ for folder in os.listdir(sourcePath):
                 if SR != -1:
                     averageSR.append(SR)                            
                     #Number of images used for final calculations
-                    print(counter, "/", len(dirPictures))
+                    print(counter, "/", len(os.listdir(f_path)))
     
 
-saveToExcel(averageSR, names, sourcePath)
+saveToExcel(averageSR, names, csvOutputDir)
 
 
         
