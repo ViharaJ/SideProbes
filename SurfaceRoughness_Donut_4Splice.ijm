@@ -1,9 +1,11 @@
 /*
 How to use: 
 	1. Save this macro to the macros folder of ImageJ/Fiji
-	2. Chnage sourcePath to directory with subfolders of images
-	3. Change subFolders_ofInterest to folders you want to process inside of sourcePath
-	4. Change savePath to the location where the processed images will be saved. 
+	2. Go to Plugins->Macros->Edit
+	3. Open the macro
+	2. Change sourcePath variable to directory with subfolders of images
+	3. Change subFolders_ofInterest variable  to folders you want to process inside of sourcePath
+	4. Change savePath variable to the location where the processed images will be saved. 
 		- naming convention: <Probe>-<scale>-<slice>-Outline.tif
 	
 How it works: 
@@ -18,7 +20,7 @@ Process:
 	5. Splice the outer skin into 4 components. New images are created
 	6. Save each image to the appropriate directory
 	
-NOTE: Don't remove setBatchMode() because it batch mode increases the runtime of this macro!! For more info check the documentation:
+NOTE: Don't remove setBatchMode() because batch mode deccreases the runtime of this macro!! For more info check the documentation:
 https://imagej.nih.gov/ij/developer/macro/functions.html#substring
 */
 
