@@ -132,8 +132,8 @@ def recreateContour(fullContour):
     return np.array(finalOrder)
 
     
-def saveToExcel(porosity_data, names, rootDir, filename="Porosity"):
-    df = pd.DataFrame(data=list(porosity_data), columns=['Porosity'], index=names)
+def saveToExcel(porosity_data, names, rootDir, filename="Roughness"):
+    df = pd.DataFrame(data=list(porosity_data), columns=['Roughness'], index=names)
     df.to_excel(os.path.join(rootDir, filename + ".xlsx")) 
     
 
@@ -215,13 +215,15 @@ def calculateSR(img, scale, sigma, kernel_len):
                 
                 euD = fb.euclidDist(xscipy[j], yscipy[j], mx, my)
                 distanceE.append(euD)
-    
-    return np.average(distanceE)
+            
+    #TODO: CHECK WHY NO INTERSECTIONS ARE FOUND
+    return -1 if len(distanceE) == 0 else np.average(distanceE)
     
 #===============================MAIN======================================
-mainDir = "Z:\\Projekte\\42029-FOR5250\\Vihara\\Test-side probes\\processed images"
-subFolders_Of_Interest =["side probe 3"]
-csvOutputDir = "Z:\\Projekte\\42029-FOR5250\\Vihara\\Test-side probes\\Documents"
+mainDir = "Z:\\Projekte\\42029-FOR5250\\Vihara\\Test-gyroid\\probe 4\\processed images"
+
+subFolders_Of_Interest =["Outer_Surface_Downskin","Outer_Surface_SideSkin_Left","Outer_Surface_SideSkin_Right", "Outer_Surface_Upskin"]
+csvOutputDir = "Z:\\Projekte\\42029-FOR5250\\Vihara\\Test-gyroid\\probe 4\\processed images\\Documents"
 
 acceptedFileTypes = ["jpg", "png", "bmp", "tif"]
 
@@ -238,6 +240,7 @@ for folder in os.listdir(mainDir):
     SR_of_folder = []
     if os.path.isdir(f_path) and folder in subFolders_Of_Interest:       
         names.append(folder)
+        print("Processing: ",  f_path)
         
         counter = 0
         for image_name in os.listdir(f_path):
@@ -255,11 +258,13 @@ for folder in os.listdir(mainDir):
                 if SR != -1:
                     SR_of_folder.append(SR)                            
                     #Number of images used for final calculations
-                    print(counter, "/", len(os.listdir(f_path)))
+                    counter = counter + 1
+                
+                print(counter, "/", len(os.listdir(f_path)))
     
     
-        
-        averageSR.append(np.average(SR_of_folder))
+        if len(SR_of_folder) > 0:
+            averageSR.append(np.average(SR_of_folder))
     
 saveToExcel(averageSR, names, csvOutputDir)
 

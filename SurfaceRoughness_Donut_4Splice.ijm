@@ -32,9 +32,9 @@ https://imagej.nih.gov/ij/developer/macro/functions.html#substring
 setBatchMode(true);
 start = getTime();
 
-sourcePath = "U:\\ROI\\Probes09-12 ROI";
-subFolders_ofInterest = newArray("Probe09", "Probe10", "Probe11", "Probe12");
-savePath = "C:\\Users\\v.jayaweera\\Pictures";
+sourcePath = "Z:\\Projekte\\42029-FOR5250\\Vihara\\Test-gyroid\\probe 4";
+subFolders_ofInterest = newArray("raw data");
+savePath = "Z:\\Projekte\\42029-FOR5250\\Vihara\\Test-gyroid\\probe 4\\processedimage2";
 
 print(subFolders_ofInterest.length);
 
@@ -123,7 +123,7 @@ for(i = 0; i < subFolders_ofInterest.length; i++)
 		run("Duplicate...", " ");
 		makePolygon(0,0,x_max/2,y_max/2,x_max,0); // Polgon mit Drei Punkten: x1,y1,x2,y2,x3,y3
 		run("Clear Outside");
-		save(outerS1 + "\\" +  finalName + ".tif");
+		save(outerS3 + "\\" +  finalName + ".tif");
 		
 		
 				
@@ -143,7 +143,7 @@ for(i = 0; i < subFolders_ofInterest.length; i++)
 		run("Clear Outside");
 		run("Rotate 90 Degrees Left");
 		run("Rotate 90 Degrees Left");
-		save(outerS3 + "\\" +  finalName + ".tif");
+		save(outerS1 + "\\" +  finalName + ".tif");
 		
 		
 		//Get left quarter
