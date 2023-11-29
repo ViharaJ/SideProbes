@@ -6,7 +6,7 @@
 2.	**File->Export Multiple/Aligned Volumes**
     1.	Select reasonable scale 
     1.	Choose destination folder 
-        1.	Naming convention: Hantel14-16bit-u-0.00277-<sliceNum>.tif
+        1.	Naming convention: Hantel14-16bit-u-0.00277- < sliceNum >.tif
             -	Everything is separated by ‘-‘
             -	Probe,
             -	Bits used
