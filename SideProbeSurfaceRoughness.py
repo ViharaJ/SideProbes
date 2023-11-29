@@ -62,7 +62,7 @@ import shapely
 import matplotlib.pyplot as plt
 from scipy import signal
 import cv2
-import Module.Functions as fb # functions from other module with a collection of functions
+import Module.Funcs_for_SR as fb # functions from another script with a collection of functions
 import os 
 import sys
 from sklearn.neighbors import NearestNeighbors
