@@ -219,10 +219,9 @@ def calculateSR(img, scale, s, k):
     return np.average(distanceE)
     
 #===============================MAIN======================================
-rootDir = ""
-subFolders_Of_Interest = []
-sourcePath = "C:\\Users\\v.jayaweera\\Pictures\\Probe01ROI2"
-csvOutputDir = '/Users/v.jayaweera/Documents'
+subFolders_Of_Interest = ["side probe 3"]
+sourcePath = "Z:\\Projekte\\42029-FOR5250\\Vihara\\Test-side probes\\processed images"
+csvOutputDir = "Z:\\Projekte\\42029-FOR5250\\Vihara\\Test-side probes\\Documents"
 
 acceptedFileTypes = ["jpg", "png", "bmp", "tif"]
 dirPictures = os.listdir(sourcePath)
@@ -232,8 +231,8 @@ averageSR = []
 names = []
 
 
-for folder in os.listdir(subFolders_Of_Interest):
-    f_path = os.path.join(rootDir, folder)
+for folder in os.listdir(sourcePath):
+    f_path = os.path.join(sourcePath, folder)
     
     # check if it's both a folder and a folder we're processing
     if os.path.isdir(f_path) and folder in subFolders_Of_Interest:        
@@ -243,7 +242,7 @@ for folder in os.listdir(subFolders_Of_Interest):
         for image_name in os.listdir(f_path):
             if( '.' in image_name and image_name.split('.')[-1].lower()
                in acceptedFileTypes):
-                img = cv2.imread(os.path.join(f_path, image_name))
+                img = cv2.imread(os.path.join(f_path, image_name), cv2.IMREAD_GRAYSCALE)
                 
                 # get scale from image
                 if scale is None:
@@ -258,7 +257,7 @@ for folder in os.listdir(subFolders_Of_Interest):
                     print(counter, "/", len(dirPictures))
     
 
-saveToExcel(averageSR, names, rootDir)
+saveToExcel(averageSR, names, sourcePath)
 
 
         
