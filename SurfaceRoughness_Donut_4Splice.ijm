@@ -1,16 +1,21 @@
 /*
+ * 
+How it works: 
+This script process folders of images within a directory. It's assumed that images appear 
+donut in nature.
+
+For each folder that's processed, a new folder is created in the savePath directory under the 
+same name. Within this new folder 5 subfolders are created. They are for the Inner Surface and 
+the 4 splices of the Outer skin: Upskin, Sideskin (left), Sideskin (right) and Downskin
+
 How to use: 
 	1. Save this macro to the macros folder of ImageJ/Fiji
 	2. Go to Plugins->Macros->Edit
 	3. Open the macro
-	2. Change sourcePath variable to directory with subfolders of images
+	2. Change sourcePath variable to the directory which contains SUBFOLDERS of images
 	3. Change subFolders_ofInterest variable  to folders you want to process inside of sourcePath
 	4. Change savePath variable to the location where the processed images will be saved. 
 		- naming convention: <Probe>-<scale>-<slice>-Outline.tif
-	
-How it works: 
-5 subfolders are created inside the directory specificed in savePath. 
-They are for the Inner Surface and the 4 splices of the Outer skin: Upskin, Sideskin (left), Sideskin (right) and Downskin
 
 Process: 
 	1. Binarizes the image
@@ -20,7 +25,7 @@ Process:
 	5. Splice the outer skin into 4 components. New images are created
 	6. Save each image to the appropriate directory
 	
-NOTE: Don't remove setBatchMode() because batch mode deccreases the runtime of this macro!! For more info check the documentation:
+NOTE: DO NOT REMVOE setBatchMode() because batch mode deccreases the runtime of this macro!! For more info check the documentation:
 https://imagej.nih.gov/ij/developer/macro/functions.html#substring
 */
 
