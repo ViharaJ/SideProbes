@@ -9,10 +9,10 @@ for each folder will be saved as an excel file
  
  
  
-How to use (variables you need change):
-    1. Change variable mainDir to directory with folders of iamges
+How to use (variables you need to change):
+    1. Change variable mainDir to directory with folders of images
     2. Update subFolders_Of_Interest to include folders you want to process
-    2. Change csvOutputDir to directory where Porosity.xlsx will be saved
+    2. Change csvOutputDir to directory where Surfaceroughness.xlsx will be saved
     3. Ensure that the image names have the scale in the second position.
         Everything should be seperated by '-'
  
@@ -24,14 +24,15 @@ How it works:
         Currently, if the next closes vertex to the current point is more than
         5 pixels away, we stop recreating the contour and break out of the routine
         If the new contour is about 95% the contour (unique vertices only), compute the roughness
-            -Note: These values 5 pixels and 95% were chosen arbitrarily
-    4. Convert the exact contour to a Shapely object. For more info on Shapely
+            -Note: These values 5 pixels and 95% were chosen arbitrarily 
+    4. Convert the XXX "recreated" exact contour to a Shapely object. For more info on Shapely
         see here: https://shapely.readthedocs.io/en/stable/geometry.html
     5. From the contour the algorithm recreates the baseline
-    6. Iterate over the baseline (slop, orthogonal, euclidian distance), Turn 
-    the normal line at each point to another Shapely object and find the intersection point
-    7. Compute roughness
+    6. Iterate over the baseline (XXX find in each point the XXX slop XXX and XXX orthogonal XXX delete > euclidian distance), Turn 
+    the normal line at each point to another Shapely object and find the intersection point XXX to the recreated contour XXX 
+    7. Compute roughness XXX as euclidean distance between the baseline and created contour using the orthogonal XXX
  
+    XXX ? Shortes distance > surface calculation? or recreation of the contour?
  
 !!!Background Info!!!:
 A CONTOUR is closed set of points. 
@@ -39,6 +40,9 @@ So, the contour of a straight line would include duplicate points. This is why
 we need to recreate the contour to include only unique points. Admittedly, this algorithm 
 probably recreates an imperfect contour for specimens with re-entrant features so there is 
 room for improvement.
+
+XXX ? Can we please talk this through
+XXX Shortest point of baseline to recreated contour
  
 The sigma and kernel length for the Gauss kernel were found using a script. The
 goal of this script was to create a baseline which closely matched the STL file of the 
@@ -90,24 +94,29 @@ def nearestNeighbour(x1, y1, allX, allY):
 
 def recreateContour(fullContour):
     """
-    fullContour: contour of shape (n,2), this should be the contour returned from 
-        cv2.findContours
-    returns: new contour of shape (n,2) 
+    fullContour: contour of shape (n,2), this should be the contour returned from cv2.findContours
+    returns: new contour of shape (n,2) (contour without double values)
     """
-    #find starting point of contour
+    #find starting point of contour (lowest leftmost white pixel) XXX difficult
+    ### in image processing y-axis is fliped > highest point on y is the min?
     minIndices = np.where(fullContour[:,1] == fullContour[:,1].max())[0]
     minPoints = fullContour[minIndices]
     minIndx = np.where(minPoints[:,0] == minPoints[:,0].min())[0][0]
     startingCord = fullContour[minIndices[minIndx]]
     
+    #XXX startingCord > means what?
+    
     #array to store ordered points
     newOrder = [startingCord]
     
-    #delete starting point from contour array (only pairs values in k)
+    #delete starting point from contour array (only pairs values in k) xxx what means pair values in k?
     fullContour = np.delete(fullContour, minIndx, axis=0)
     
     
     #Find nearest neighbour, stop when next vertex is dist > 15 pixels away
+    # XXX what is the background that one time the NearestNeighbors-Function form Sklearn is used and the other time defined new in the programm?
+    # difficult to follow next lines
+    
     while(len(fullContour) > 1):
         nbrs = NearestNeighbors(n_neighbors=2, algorithm='ball_tree').fit(fullContour)
         distance, indices = nbrs.kneighbors([newOrder[-1]])
@@ -120,7 +129,7 @@ def recreateContour(fullContour):
             fullContour = np.delete(fullContour, indices[0], axis=0)
 
 
-    #get unqiue points, maintain order
+    #keep unqiue points, maintain order
     _, idx = np.unique(newOrder, axis=0,  return_index=True)
     newOrderIndx = np.sort(idx)
     
@@ -140,8 +149,9 @@ def saveToExcel(porosity_data, names, rootDir, filename="Roughness"):
 def calculateSR(img, scale, sigma, kernel_len):
     '''
     img: image to be processed
-    s: sigma for gaussl kernel
-    k: full kernel length
+    scale: one pixel in mm (e.g. 1px = 0.002mm)
+    sigma: sigma for gaussl kernel
+    kernel_len: full kernel length
     returns: Surface roughness or -1 if failed to find a value
     '''
     # Ra
@@ -152,7 +162,7 @@ def calculateSR(img, scale, sigma, kernel_len):
     if cont is None:
         return -1
     
-    #Get main contour of interest, ignore pores
+    #Get main contour of interest
     k = longestContour(cont)
     
     #turn contour to array shape (n,2)
@@ -166,20 +176,25 @@ def calculateSR(img, scale, sigma, kernel_len):
     kernel = fb.gauss1D(sigma, kernel_len)   
   
     # recreated contour matches length criteria
+    # XXX? original is divided by 2, since the contour of a line is a closed contour so every point is double
+    # XXX? how do I know the above?
+    
     if(len(finalOrder) >= (len(original)/2)*0.95): 
         x = np.array(finalOrder[:,0])
         y = np.array(finalOrder[:,1])
         
-        # plot recreated contour
         ratio = img.shape[0]/img.shape[1]
         # plt.title(path)     
         plt.plot(x, y, 'g.-', label="New contour")
         
         # get baseline
+        # XXX signal.convolve - Convolve (Falten) two N-dimensional arrays
+        # Faltung ist ein mathematischer Operator, der ein Signal mit einem anderen Signal mischt
         xscipy = signal.convolve(x, kernel, mode='valid')
         yscipy = signal.convolve(y, kernel, mode='valid')
         
-        dx = np.diff(xscipy)
+        # dx & dy for the slope calculation
+        dx = np.diff(xscipy) 
         dy = np.diff(yscipy)
         
         # TODO REMOVE LATER;TESTING
@@ -187,8 +202,8 @@ def calculateSR(img, scale, sigma, kernel_len):
         
         # plot baseline and show
         plt.plot(xscipy, yscipy, 'm.-', label="baseline")
-        x_left, x_right = plt.gca().get_xlim()
-        y_low, y_high = plt.gca().get_ylim()
+        x_left, x_right = plt.gca().get_xlim()  # min & max of x-axis
+        y_low, y_high = plt.gca().get_ylim()    # min & max of y-axis
         plt.gca().set_aspect(abs((x_right-x_left)/(y_low-y_high))*ratio)
         plt.legend()
         plt.show()
@@ -220,10 +235,11 @@ def calculateSR(img, scale, sigma, kernel_len):
     return -1 if len(distanceE) == 0 else np.average(distanceE)
     
 #===============================MAIN======================================
-mainDir = "Z:\\Projekte\\42029-FOR5250\\Vihara\\Test-gyroid\\probe 4\\processed images"
+mainDir = "Z:\\Projekte\\42029-FOR5250\\Vihara\\Gyroid_Reg2\\processed\\Gyroid4"
 
-subFolders_Of_Interest =["Outer_Surface_Downskin","Outer_Surface_SideSkin_Left","Outer_Surface_SideSkin_Right", "Outer_Surface_Upskin"]
-csvOutputDir = "Z:\\Projekte\\42029-FOR5250\\Vihara\\Test-gyroid\\probe 4\\processed images\\Documents"
+subFolders_Of_Interest =["Inner_Surface","Outer_Surface_Downskin","Outer_Surface_SideSkin_Left","Outer_Surface_SideSkin_Right", "Outer_Surface_Upskin"]
+#subFolders_Of_Interest =["Outer_Surface_SideSkin_Left"]
+csvOutputDir = "Z:\\Projekte\\42029-FOR5250\\Vihara\\Gyroid_Reg2\\processed\\Gyroid4"
 
 acceptedFileTypes = ["jpg", "png", "bmp", "tif"]
 
@@ -236,7 +252,7 @@ for folder in os.listdir(mainDir):
     # get full folder path
     f_path = os.path.join(mainDir, folder)
     
-    # check if it's both a folder and a folder we're processing
+    # check if it's both a folder and a XXX? folder we're processing
     SR_of_folder = []
     if os.path.isdir(f_path) and folder in subFolders_Of_Interest:       
         names.append(folder)
